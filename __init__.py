@@ -1,21 +1,12 @@
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
 import time
-import sys
 import os
-try:
-    from AlignmentReporter.UI.py import run
-    from AlignmentReporter import converter as converter
-    from AlignmentReporter import Vizualisation as vizualisation
-    PATH=__file__.split("__init__")[0]
-except ModuleNotFoundError:
-    from UI.py import run
-    import converter
-    import Vizualisation as vizualisation
-    PATH=__file__.split("__init__")[0]
+from UI import py as UIPY
+from PySide2.QtCore import *
+from PySide2.QtGui import QIcon
+from PySide2.QtWidgets import *
+import traceback as tr
 
-
+PATH=__file__.split("__init__")[0]
 BACKLOG = 100
 BACKLOG_SCALE = 50
 COLORS = ('gray', 'cyan', 'magenta', 'green', 'red', 'blue')
@@ -51,7 +42,21 @@ SCATTER_KWARGS = {
 }
 EXCEL_FILE = os.path.join(PATH, "AlignementData.xlsx")
 
-if __name__ == "__main__":
-    app=object()
-    win=object()
-    run(app, win)
+if __name__ == '__main__':
+    try:
+        import sys
+        import os
+        
+        app = QApplication(sys.argv)
+        app.setApplicationName("partyAlignmentChartTool")
+        app.setApplicationDisplayName("Party Alignment Chart Tool")
+        app.setApplicationVersion("0.1.0")
+        app.setOrganizationName("Julien Alardot")
+        win = UIPY.mainWindow(input("Savefile Name: "))
+        win.resize(0, 0)
+        win.setFocus()
+        app.setWindowIcon(QIcon(os.path.join(PATH, "UI", "AlignmentTool.icon")))
+        app.connect(app, SIGNAL("lastWindowClosed()"), app, SLOT("quit()"))
+        app.exec_()
+    except Exception:
+        tr.print_exc()

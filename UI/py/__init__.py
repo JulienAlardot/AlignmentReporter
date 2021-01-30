@@ -12,11 +12,12 @@ from PySide2.QtCore import *
 from PySide2.QtGui import QPixmap, QIcon
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtWidgets import *
-# from numba import *
 import os
 import numpy as np
 import Vizualisation as vis
 path = __file__.split("UI")[0]
+
+
 BACKGROUND_KWARGS = {
     "color"    : 'black',
     'linewidth': 3
@@ -46,17 +47,6 @@ with open(os.path.join(path, "UI", "Qt", "style.css"), "r") as f:
 icon_path = os.path.join(path, "UI", "Qt")
 
 # TODO: Add "Add Party" option and automatise the Party Player
-# class mainWindow(QMainWindow):
-#     def __init__(self, *args):
-#         super(mainWindow.__init__, (self,) + args)
-#
-#         loader = QtUiTools.QUiLoader()
-#         file = QtCore.QFile("pyside_ui_qtdesigner_form_test.ui")
-#         file.open(QtCore.QFile.ReadOnly)
-#         self.myWidget = loader.load(file, self)
-#         file.close()
-#
-#         self.setCentralWidget(self.myWidget)
 
 class settingWindow(QMainWindow):
     def __init__(self, parent=None):
@@ -93,6 +83,7 @@ class settingWindow(QMainWindow):
         """
         Link Widgets to functions
         """
+        pass
     
     ####################################################################################################################
     #                                               Custom UI functions                                                #
@@ -833,24 +824,5 @@ def run(app, win):
     except Exception:
         tr.print_exc()
 
-
-if __name__ == '__main__':
-    try:
-        import sys
-        import os
-        
-        app = QApplication(sys.argv)
-        app.setApplicationName("partyAlignmentChartTool")
-        app.setApplicationDisplayName("Party Alignment Chart Tool")
-        app.setApplicationVersion("0.1.0")
-        app.setOrganizationName("Julien Alardot")
-        win = mainWindow(input("Savefile Name: "))
-        win.resize(0, 0)
-        win.setFocus()
-        app.setWindowIcon(QIcon(os.path.join(AlignmentReporter.PATH, "UI", "AlignmentTool.icon")))
-        app.connect(app, SIGNAL("lastWindowClosed()"), app, SLOT("quit()"))
-        app.exec_()
-    except Exception:
-        tr.print_exc()
 
 # # Endfile

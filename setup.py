@@ -1,12 +1,12 @@
 from setuptools import setup
 
 setup(
-        name='Alignment Reporter',
+        name='AlignmentReporter',
         version='1.0.0',
         packages=['UI', 'UI.py'],
-        url='',
+        url='https://github.com/Celtaidd/AlignmentReporter',
         license='MIT',
         author='Julien Alardot',
-        author_email='Alardot.J@gmail.com',
-        description=''
+        author_email='alardot.j@gmail.com',
+        description='Simple Tool to track the alignments of your players'
 )
