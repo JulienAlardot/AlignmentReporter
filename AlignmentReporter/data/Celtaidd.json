@@ -1,6 +1,6 @@
 {
     "chb_image_title": true,
-    "cob_players_select": 4,
+    "cob_players_select": 0,
     "current_marker": 5,
     "hs_current_scale": 41,
     "hs_jpeg_qual": 8,
@@ -15,16 +15,9 @@
     "le_previous_custom": "",
     "legend_text_alignment": 0,
     "player": {
-        "Color": "Cyan",
-        "Entries": [
-            "LB",
-            "LB",
-            "G",
-            "LG",
-            "G",
-            "LG"
-        ],
-        "Name": "Sam"
+        "Color": "Black",
+        "Entries": [],
+        "Name": "Player Name"
     },
     "players": {
         "Ezren D.": {

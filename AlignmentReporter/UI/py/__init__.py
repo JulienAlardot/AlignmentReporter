@@ -8,13 +8,13 @@ import traceback as tr
 
 import matplotlib.pyplot as plt
 import pandas as pd
-from PySide2.QtCore import *
+from PySide2.QtCore import QFile, Qt, Signal, SIGNAL, SLOT
 from PySide2.QtGui import QPixmap, QIcon
 from PySide2.QtUiTools import QUiLoader
-from PySide2.QtWidgets import *
+from PySide2.QtWidgets import QSizePolicy, QMainWindow, QApplication, QLabel
 import os
 import numpy as np
-import Vizualisation as vis
+import AlignmentReporter.Vizualisation as vis
 path = __file__.split("UI")[0]
 
 
@@ -406,10 +406,7 @@ class mainWindow(QMainWindow):
             f = self.__TMP
             if not img:
                 line_qual = int(360 * (10 ** np.linspace(-0.5, 3.8, 100)[self.data["hs_line_quality"]]))
-                try:
-                    vis.plot_background(n=line_qual, kwargs=AlignmentReporter.BACKGROUND_KWARGS)
-                except NameError:
-                    vis.plot_background(n=line_qual, kwargs=BACKGROUND_KWARGS)
+                vis.plot_background(n=line_qual, kwargs=BACKGROUND_KWARGS)
                 
                 t = self.data["le_image_title"] if self.data["chb_image_title"] else False
                 alignment = 'left' if self.data["title_alignment"] == 0 else 'right' if self.data[
@@ -432,7 +429,7 @@ class mainWindow(QMainWindow):
     def savefig(self, out, dpi=None, f=None, t=None, q=None):
         self.update_data()
         try:
-            metadata = AlignmentReporter.METADATA
+            metadata = METADATA
         except NameError:
             metadata = METADATA
         metadata["Creation Time"] = time.ctime()
@@ -628,10 +625,7 @@ class mainWindow(QMainWindow):
                 tasks += (len(player["Entries"]) - 1) * 2
             
             self.progressUpdate(True, 0, 10 + tasks + line_qual, 1, 0)
-            try:
-                vis.plot_background(n=line_qual, kwargs=AlignmentReporter.BACKGROUND_KWARGS)
-            except NameError:
-                vis.plot_background(n=line_qual, kwargs=BACKGROUND_KWARGS)
+            vis.plot_background(n=line_qual, kwargs=BACKGROUND_KWARGS)
             for i in range(line_qual):
                 self.advanced.emit()
             t = self.data["le_image_title"] if self.data["chb_image_title"] else False
@@ -826,3 +820,57 @@ def run(app, win):
 
 
 # # Endfile
+
+PATH = __file__.split("__init__")[0]
+BACKLOG = 100
+BACKLOG_SCALE = 50
+COLORS = ('gray', 'cyan', 'magenta', 'green', 'red', 'blue')
+
+BACKGROUND_QUALITY = int(360 * (10 ** 0.1))
+BACKGROUND_KWARGS = {
+    "color"    : 'black',
+    'linewidth': 3
+}
+
+METADATA = {
+    'Title'      : 'Characters Current Alignement Chart Evolution',
+    'Author'     : 'Julien Alardot',
+    'Description': 'Characters Current Alignement Chart Evolution',
+    'Copyright'  : 'All Right Reserved by Julien Alardot'
+}
+
+PLOT_KWARGS = {
+    'linewidth'      : 2,
+    "alpha"          : 0.3,
+    'ms'             : 20,
+    'aa'             : True,
+    'drawstyle'      : 'steps-pre',
+    'solid_capstyle' : 'projecting',
+    'solid_joinstyle': 'round',
+    'linestyle'      : '--'
+    
+}
+SCATTER_KWARGS = {
+    "marker": 'o'
+    
+}
+EXCEL_FILE = os.path.join(PATH, "AlignementData.xlsx")
+
+global app
+
+
+def launch():
+    import sys
+    import os
+    app = QApplication(sys.argv)
+    app.setApplicationName("partyAlignmentChartTool")
+    app.setApplicationDisplayName("Party Alignment Chart Tool")
+    app.setApplicationVersion("0.1.0")
+    app.setOrganizationName("Julien Alardot")
+    win = mainWindow(input("Savefile Name: "))
+    win.resize(0, 0)
+    win.setFocus()
+    app.setWindowIcon(QIcon(os.path.join(PATH, "UI", "AlignmentTool.icon")))
+    app.connect(app, SIGNAL("lastWindowClosed()"), app, SLOT("quit()"))
+    app.exec_()
+    app.quit()

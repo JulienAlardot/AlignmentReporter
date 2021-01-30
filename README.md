@@ -5,3 +5,8 @@ Originally just a part of a larger toolbox, I am currently making it a standalon
 The tool is quite simple in its way but I will add a tutorial later. For now simply launch The __init__.py at the root directory and enter a save file name. It will automatically load any existing file in the data folder if it exists. I have already created two save files from personnal games (accessible with the names"Celtaidd" and "Volac").
 
 The generated images are in the "out" directory but a preview is loaded in the tool
+
+Required Python version: 3.6
+
+Typical usage: 
+"import AlignmentReporter as AR;AR.launch()"
