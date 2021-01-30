@@ -6,7 +6,9 @@ The tool is quite simple in its way but I will add a tutorial later. For now sim
 
 The generated images are in the "out" directory but a preview is loaded in the tool
 
-Required Python version: 3.6
+Required Python version: 3.6.5
+
+You can install the package using 'python setup.py install'
 
 Typical usage: 
 "import AlignmentReporter as AR;AR.launch()"
