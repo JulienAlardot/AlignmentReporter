@@ -4,42 +4,19 @@ import json
 import math
 import pickle
 import time
-import traceback as tr
+import sys
+import os
 
+import traceback as tr
 import matplotlib.pyplot as plt
 import pandas as pd
 from PySide2.QtCore import QFile, Qt, Signal, SIGNAL, SLOT
 from PySide2.QtGui import QPixmap, QIcon
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtWidgets import QSizePolicy, QMainWindow, QApplication, QLabel
-import os
 import numpy as np
 import AlignmentReporter.Vizualisation as vis
 path = __file__.split("UI")[0]
-
-
-BACKGROUND_KWARGS = {
-    "color"    : 'black',
-    'linewidth': 3
-}
-METADATA = {
-    'Title'        : 'Characters Current Alignement Chart Evolution',
-    'Author'       : 'Julien Alardot',
-    'Description'  : 'Characters Current Alignement Chart Evolution',
-    'Copyright'    : 'All Right Reserved by Julien Alardot',
-    'Creation Time': time.ctime()
-}
-PLOT_KWARGS = {
-    'linewidth'      : 1,
-    "alpha"          : 0.2,
-    'ms'             : 20,
-    'aa'             : True,
-    'drawstyle'      : 'steps-pre',
-    'solid_capstyle' : 'projecting',
-    'solid_joinstyle': 'round',
-    'linestyle'      : '--'
-    
-}
 
 with open(os.path.join(path, "UI", "Qt", "style.css"), "r") as f:
     style = f.read()
@@ -47,9 +24,13 @@ with open(os.path.join(path, "UI", "Qt", "style.css"), "r") as f:
 icon_path = os.path.join(path, "UI", "Qt")
 
 # TODO: Add "Add Party" option and automatise the Party Player
-
 class settingWindow(QMainWindow):
     def __init__(self, parent=None):
+        """
+        Subclass used for the child window with the graph customization parameters
+        :param parent: (optional) Set the parent window instance for this subclass instance
+        :type parent: PySide2.QtWidgets.QWidget
+        """
         # Window setup
         super(settingWindow, self).__init__()
         loader = QUiLoader()
@@ -104,6 +85,11 @@ class mainWindow(QMainWindow):
     advanced = Signal()
     
     def __init__(self, savefile):
+        """
+        Subclass used for the child window with the graph customization parameters
+        :param savefile: name string for the saving file e.g: "Celtaidd"
+        :type savefile: str
+        """
         # Window setup
         super(mainWindow, self).__init__()
         self.setStyleSheet(style)
@@ -161,7 +147,7 @@ class mainWindow(QMainWindow):
     ####################################################################################################################
     def assignWidgets(self):
         """
-        Link Widgets to functions
+        Method used to connect QSignals to other Methods
         """
         self.centralWidget.tb_settings.released.connect(self.setUI.show)
         self.centralWidget.pb_save_quit.released.connect(self.close)
@@ -179,6 +165,11 @@ class mainWindow(QMainWindow):
         self.advanced.connect(self.taskAdvance)
     
     def updateSignalBlock(self, state):
+        """
+        Method used to un/block QSignals on critical connections when an infinite loop is possible
+        :param state: (optional) Set the parent window instance for this subclass instance
+        :type state: bool
+        """
         self.centralWidget.cob_players_select.blockSignals(state)
     
     ####################################################################################################################
@@ -192,6 +183,12 @@ class mainWindow(QMainWindow):
         print("Button clicked")
     
     def mutate_widget(self, old):
+        """
+        Method used to "change" the class for the image label. The new instance emits a custom QSignal when it is
+        resized.
+        :param old: Qlabel object of the image preview
+        :type old: PySide2.QtWidgets.QLabel
+        """
         layout = old.parent().layout()
         old = self.centralWidget.l_image
         old_name = old.objectName()
@@ -210,11 +207,17 @@ class mainWindow(QMainWindow):
         self.centralWidget.l_image = new
     
     def close(self):
+        """
+        Method used to save data and close the window
+        """
         self.save()
         self.setUI.close()
         super(mainWindow, self).close()
     
     def show(self):
+        """
+        Method used to show the window and load the image
+        """
         try:
             self.load()
             self.image = None
@@ -222,7 +225,13 @@ class mainWindow(QMainWindow):
             pass
         super(mainWindow, self).show()
     
-    def save(self, j=True):
+    def save(self, js=True):
+        """
+        Method used to save data to a pickle file.
+        :param js: (optional) If True a json will also be saved (mainly for debug and to read data without launching
+        the tool), default is True
+        :type js: bool
+        """
         self.update_data()
         try:
             with open(self.savefile, 'wb') as f:
@@ -231,13 +240,16 @@ class mainWindow(QMainWindow):
                 except TypeError:
                     print(self.data)
             
-            if j:
+            if js:
                 with open(self.savefile_json, 'w', encoding="utf-8") as f:
                     json.dump(self.data, f, indent=4, sort_keys=True)
         except Exception:
             tr.print_exc()
     
     def savePlayer(self):
+        """
+        Method used to save current player parameters data into the players data dictionnary
+        """
         self.update_data()
         w = self.centralWidget
         player = self.data["player"]
@@ -274,6 +286,9 @@ class mainWindow(QMainWindow):
         self.updateSignalBlock(False)
     
     def delPlayer(self):
+        """
+        Method used to remove all current player data
+        """
         try:
             w = self.centralWidget
             del self.data["players"][w.cob_players_select.currentText()]
@@ -282,6 +297,9 @@ class mainWindow(QMainWindow):
             pass
     
     def updatePlayer(self):
+        """
+        Method used to switch to new selected player data
+        """
         try:
             w = self.centralWidget
             player_name = w.cob_players_select.currentText()
@@ -298,9 +316,26 @@ class mainWindow(QMainWindow):
             tr.print_exc()
     
     def taskAdvance(self):
+        """
+        Method triggered by a QSignal or Hard coded. Redundant and will be removed
+        """
+        # Todo: Remove method
         self.progressUpdate()
     
     def progressUpdate(self, set=False, start=None, stop=None, i=1, current=None):
+        """
+        Method used to control the main QProgressbar and call the method 'show' and 'hide' of its QFrame container
+        :param set: (optional) Reset the progress to 0 or given value
+        :param start: (optional) If given and 'set=True', will set the minimum value for the progress bar, default is 0
+        :param stop: (optional) If given and 'set=True', will set the maximum value for the progress bar, default is 100
+        :param i: (optional) If given, will increase the current value by the given value, default is 1
+        :param current: (optional) If given, will hard
+        :type set: bool
+        :type start: int or float
+        :type stop: int or float
+        :type i: int
+        :type current: int or float
+        """
         bar = self.centralWidget.prb_preview
         if set:
             if start:
@@ -334,10 +369,11 @@ class mainWindow(QMainWindow):
     
     @property
     def current_player_data(self):
-        pass
-    
-    @current_player_data.getter
-    def current_player_data(self):
+        """
+        Property that tries to return the current player data dictionnary extracted from UI placeholderText values
+        :return: Current player data dictionnay
+        :rtype: int or float
+        """
         try:
             self.__player_data = {
                 "Name"   : self.centralWidget.le_player_name.placeholderText(),
@@ -351,6 +387,11 @@ class mainWindow(QMainWindow):
     
     @current_player_data.setter
     def current_player_data(self, data=None):
+        """
+        Property.setter that sets current player data dictionnary values into UI placeholderText values
+        :param data: (optional) override current player data and force given values
+        :type data: dict
+        """
         if data:
             self.__player_data = data
         w = self.centralWidget
@@ -366,13 +407,18 @@ class mainWindow(QMainWindow):
         w.le_player_color.setPlaceholderText(self.__player_data["Color"] if 'Color' in self.__player_data.keys() else
                                              "Black")
     
-    def load(self, j=True):
+    def load(self, js=True):
+        """
+        Method that sets current player data dictionnary values into UI placeholderText values
+        :param data: (optional) override current player data and force given values
+        :type data: dict
+        """
         with open(self.savefile, 'rb') as f:
             try:
                 self.data = pickle.load(f)
             except EOFError:
                 tr.print_exc()
-        if j:
+        if js:
             try:
                 with open(self.savefile_json, 'r', encoding="utf-8") as f:
                     self.data = json.load(f)
@@ -385,22 +431,38 @@ class mainWindow(QMainWindow):
     
     @property
     def data(self):
+        """
+        Property that returns players data
+        :return: Current players data values
+        :rtype: dict
+        """
         return self.__data
     
     @data.setter
     def data(self, data):
+        """
+        Property.setter that override players data
+        :param data: New players data values
+        :type data: dict
+        """
         self.__data = data.copy()
     
     @property
     def image(self):
-        pass
-    
-    @image.getter
-    def image(self):
-        return None
+        """
+        Property that returns the QLabel used to show the image preview
+        :return: the QLabel holding the image preview
+        :rtype: PySide2.QWidgets.QLabel
+        """
+        return self.centralWidget.l_image
     
     @image.setter
     def image(self, img=None):
+        """
+        Property that generate the preview image
+        :param img: (optional) if given, will override the image preview with the one given
+        :type img: numpy.array
+        """
         # self.update_data()
         try:
             f = self.__TMP
@@ -422,11 +484,29 @@ class mainWindow(QMainWindow):
             pass
     
     def resizeImage(self):
+        """
+        Method called by QSignal that generates a resized preview image
+        """
         self.centralWidget.l_image.setPixmap(QPixmap(self.__TMP).scaled(self.centralWidget.l_image.size() * 1,
                                                                         mode=Qt.SmoothTransformation,
                                                                         aspectMode=Qt.KeepAspectRatio))
     
     def savefig(self, out, dpi=None, f=None, t=None, q=None):
+        """
+        Method that outputs the final version of the image into the output folder
+        :param out: fullpath of the output file
+        :param dpi: (optional) dpi value for the matplotlib.pyplot.savefig method
+        # TODO: Change to a more 'clear' value like size
+        :param f: (optional) ['png' or 'jpeg'] override output file format, default is based on user choice data
+        :param t: (optional) override output transparency if file format is 'png', default is based on user choice data
+        :param q: (optional) [1 <-> 12] override jpeg file quality if file format is 'jpeg', default is based on user
+            choice data
+        :type out: str
+        :type dpi: int
+        :type f: str
+        :type t: bool
+        :type q: int
+        """
         self.update_data()
         try:
             metadata = METADATA
@@ -443,6 +523,9 @@ class mainWindow(QMainWindow):
                     pil_kwargs={'quality': int(round(q)), "metadata": metadata})
     
     def update_data(self):
+        """
+        Update data dictionary based on UI values
+        """
         try:
             data = dict()
             w = self.centralWidget
@@ -487,6 +570,11 @@ class mainWindow(QMainWindow):
             tr.print_exc()
     
     def update_ui(self, firstCall=False):
+        """
+        Override UI values safely
+        :param firstCall: (optional) Also call the method to update player values ui, default False
+        :type firstCall: bool
+        """
         self.updateSignalBlock(True)
         try:
             w = self.centralWidget
@@ -564,9 +652,13 @@ class mainWindow(QMainWindow):
         self.updateSignalBlock(False)
     
     def setPlayerColor(self):
+        """
+        Method that verifies if the given color value is valid, if so update QLabel placeholder value and change focus
+        """
         colors = ['black', 'blue', 'brown', 'cyan', 'darkblue', 'darkcyan', 'darkgray', 'darkgreen', 'darkmagenta',
                   'darkred', 'gray', 'green', 'lightblue', 'lightcyan', 'lightgray', 'lightgreen', 'lightmagenta',
                   'lightred', 'magenta', 'orange', 'red', 'white', 'yellow', "pink", ""]
+        # FIXME: Some colors return an error, they need to be checked and possibly extanded
         if self.centralWidget.le_player_color.text().lower() in colors:
             if self.centralWidget.le_player_color.text():
                 self.centralWidget.le_player_color.setPlaceholderText(
@@ -576,6 +668,9 @@ class mainWindow(QMainWindow):
         self.update_data()
     
     def setPlayerName(self):
+        """
+        Method that update player name if a new value was given, then changes focus
+        """
         if self.centralWidget.le_player_name.text():
             self.centralWidget.le_player_name.setPlaceholderText(self.centralWidget.le_player_name.text())
             self.centralWidget.le_player_name.setText("")
@@ -590,6 +685,11 @@ class mainWindow(QMainWindow):
         self.update_data()
     
     def addEntry(self, entry=None):
+        """
+        Method that verifies if new alignment entry is valid, if so adds it to the QListWidget
+        :param entry: (optional) Overrides new entry value, default is None
+        :type entry: str
+        """
         alignement = ["LG", "LB", "NG", "NB", "CG", "CB", "LN", "TN", "CN", "LE", "LM", "NE", "NM", "CE", "CM", "L",
                       "N", "T", "C", "G", "B", "E", "M"]
         if not entry:
@@ -601,15 +701,25 @@ class mainWindow(QMainWindow):
         self.update_data()
     
     def delEntry(self):
+        """
+        Method that deletes the selected entry (or the last if none is selected) of the QListWidget
+        """
         if self.centralWidget.lw_player_entries.currentItem():
             self.centralWidget.lw_player_entries.takeItem(self.centralWidget.lw_player_entries.currentRow())
         else:
             self.centralWidget.lw_player_entries.takeItem(self.centralWidget.lw_player_entries.count() - 1)
     
     def clearEntries(self):
+        """
+        Method that clear all current QListWidget entries
+        """
         self.centralWidget.lw_player_entries.clear()
     
     def generateImage(self):
+        """
+        Method that tries to render the output image of the graph and update the progress bar
+        """
+        # Todo: Use Subprocesses to speed up. Try Pool() if possible
         try:
             plt.close()
             self.update_data()
@@ -686,10 +796,7 @@ class mainWindow(QMainWindow):
                     ha = 'left' if self.data['legend_text_alignment'] == 0 else "center" \
                         if self.data['legend_text_alignment'] == 1 else 'right'
                     s = np.logspace(-1.2, 1.5, mean_df.shape[0]) * math.sqrt((self.data["hs_scale"]) / 100.0)
-                    try:
-                        plt.plot(mean_df['x'], mean_df['y'], color=color, **AlignmentReporter.PLOT_KWARGS)
-                    except Exception:
-                        plt.plot(mean_df['x'], mean_df['y'], color=color, **PLOT_KWARGS)
+                    plt.plot(mean_df['x'], mean_df['y'], color=color, **PLOT_KWARGS)
                     self.advanced.emit()
                     
                     prev_markers = ["o", "x", '*', "+", "<", "^", ">", "v", '',
@@ -752,7 +859,7 @@ class mainWindow(QMainWindow):
             self.advanced.emit()
             self.centralWidget.l_image.resized.emit()
             self.advanced.emit()
-            self.advanced.emit()
+            self.advanced.emit()  # Forced value Overflow
             self.advanced.emit()
             self.advanced.emit()
             self.advanced.emit()
@@ -761,6 +868,13 @@ class mainWindow(QMainWindow):
 
 
 def compute_time(t):
+    """
+    Function that convert a given time value into a nice string
+    :param t: Time in second
+    :type t: float
+    :return: Time string
+    :rtype: str
+    """
     force = False
     p = "Process took: "
     if t >= 60 ** 2:
@@ -794,30 +908,17 @@ class myQLabel(QLabel):
     resized = Signal()
     
     def __init__(self):
+        """
+        Subclass of QLabel that emit a Signal when resized
+        """
         super(myQLabel, self).__init__()
     
     def resizeEvent(self, event):
+        """
+        Override of the QWidget resizeEvent to add a custom QSignal.emit()
+        """
         self.resized.emit()
         super(myQLabel, self).resizeEvent(event)
-
-
-def run(app, win):
-    try:
-        import sys
-        import os
-        app = QApplication(sys.argv)
-        app.setApplicationName("partyAlignmentChartTool")
-        app.setApplicationDisplayName("Party Alignment Chart Tool")
-        app.setApplicationVersion("0.1.0")
-        app.setOrganizationName("Julien Alardot")
-        win = mainWindow()
-        win.setFocus()
-        app.setWindowIcon(QIcon(os.path.join(path, "UI", "AlignmentTool.icon")))
-        app.connect(app, SIGNAL("lastWindowClosed()"), app, SLOT("quit()"))
-        app.exec_()
-    except Exception:
-        tr.print_exc()
-
 
 # # Endfile
 
@@ -857,15 +958,18 @@ SCATTER_KWARGS = {
 EXCEL_FILE = os.path.join(PATH, "AlignementData.xlsx")
 
 global app
-
-
 def launch():
-    import sys
-    import os
+    """
+    Instantiate a new QAplication and mainWindow classes and takes stdin input for savefile name
+    :param app: (optional) If given, will not generate a new instance but use the one given, default is None
+    :param win: (optional) if given, will not generate a new instance but use the one given, default is None
+    :type app: PySide2.QtWidgets.QApplication
+    :type app: PySide2.QtWidgets.QMainWindow
+    """
     app = QApplication(sys.argv)
     app.setApplicationName("partyAlignmentChartTool")
     app.setApplicationDisplayName("Party Alignment Chart Tool")
-    app.setApplicationVersion("0.1.0")
+    app.setApplicationVersion("1.0.0")
     app.setOrganizationName("Julien Alardot")
     win = mainWindow(input("Savefile Name: "))
     win.resize(0, 0)
@@ -873,4 +977,3 @@ def launch():
     app.setWindowIcon(QIcon(os.path.join(PATH, "UI", "AlignmentTool.icon")))
     app.connect(app, SIGNAL("lastWindowClosed()"), app, SLOT("quit()"))
     app.exec_()
-    app.quit()

@@ -1,19 +1,10 @@
-try:
-    from AlignmentReporter import *
-except ModuleNotFoundError:
-    pass
 from matplotlib import pyplot as plt
-from matplotlib import transforms as trans
 import random as rand
 import math
 import pandas as pd
 import numpy as np
 import traceback as tr
-try:
-    from scipy.interpolate import make_interp_spline
-except Exception:
-    pass
-import time
+from scipy.interpolate import make_interp_spline
 
 
 def gen_rand_array(n_row=100, n_column=2, min=-1.0, max=1.0, s=0.1):
@@ -23,7 +14,7 @@ def gen_rand_array(n_row=100, n_column=2, min=-1.0, max=1.0, s=0.1):
     return pd.DataFrame(np.array(array), columns=["x", "y"])
 
 
-def square_root(df):
+def map_to_circle(df):
     for i, row in enumerate(df.values):
         x, y = row
         ratio1 = max(1e-15, math.sqrt(x ** 2 + y ** 2))
@@ -68,7 +59,7 @@ def plot_background(n=100, kwargs=dict()):
         bars = ((ax1, ax2), (ax2, ax1))
         
         for bar in bars:
-            df_no_mid = square_root(pd.DataFrame(np.array(bar).transpose(), columns=["x", "y"])).set_index("x")
+            df_no_mid = map_to_circle(pd.DataFrame(np.array(bar).transpose(), columns=["x", "y"])).set_index("x")
             for angle in np.linspace(0, 270, 4):
                 rotatematrix(df_no_mid, kwargs, angle)
         
@@ -83,13 +74,6 @@ def plot_background(n=100, kwargs=dict()):
                 columns=['x', 'y'])
         plt.plot(inner_circle['x'], inner_circle['y'], zorder=1, **kwargs)
         plt.plot(inner_circle['x'], -inner_circle['y'], zorder=1, **kwargs)
-        
-        # corners = np.array([[-1.0, -0.67, -0.33, 0.0, 0.33, 0.67, 1.0] * 7,
-        #                     [1.0] * 7 + [0.67] * 7 + [0.33] * 7 + [0.0] * 7 + [-0.33] * 7
-        #                     + [-0.67] * 7 + [-1.0] * 7]).transpose()
-        #
-        # data = square_root(pd.DataFrame(corners, columns=["x", "y"]))
-        # plt.scatter(data["x"], data["y"], color='red')
     
     except Exception:
         tr.print_exc()
@@ -99,27 +83,7 @@ def plot_foreground(tight=False, kwargs=dict()):
     try:
         df = pd.DataFrame(np.array([[-2 / 3, 2 / 3], [0.0, 2 / 3], [2 / 3, 2 / 3], [-2 / 3, 0], [0.0, 0],
                                     [2 / 3, 0], [-2 / 3, -2 / 3], [0.0, -2 / 3], [2 / 3, -2 / 3]]))
-        df = square_root(df)
-        # plt.annotate("Lawful\nGood", df.loc[0], ha="center", va='center', fontsize=kwargs['fontsize'],
-        #              fontweight='bold')
-        # plt.annotate("Neutral\nGood", df.loc[1], ha="center", va='center', fontsize=kwargs['fontsize'],
-        #              fontweight='bold')
-        # plt.annotate("Chaotic\nGood", df.loc[2], ha="center", va='center', fontsize=kwargs['fontsize'],
-        #              fontweight='bold')
-        #
-        # plt.annotate("Lawful\nNeutral", df.loc[3], ha="left", va='center', fontsize=kwargs['fontsize'],
-        #              fontweight='bold')
-        # plt.annotate("True\nNeutral", df.loc[4], ha="center", va='center', fontsize=kwargs['fontsize'],
-        #              fontweight='bold')
-        # plt.annotate("Chaotic\nNeutral", df.loc[5], ha="center", va='center', fontsize=kwargs['fontsize'],
-        #              fontweight='bold')
-        #
-        # plt.annotate("Lawful\nEvil", df.loc[6], ha="center", va='center', fontsize=kwargs['fontsize'],
-        #              fontweight='bold')
-        # plt.annotate("Neutral\nEvil", df.loc[7], ha="center", va='center', fontsize=kwargs['fontsize'],
-        #              fontweight='bold')
-        # plt.annotate("Chaotic\nEvil", df.loc[8], ha="center", va='center', fontsize=kwargs['fontsize'],
-        #              fontweight='bold')
+        df = map_to_circle(df)
         
         plt.annotate("LG", df.loc[0], ha="center", va='center', fontsize=kwargs['fontsize'],
                      fontweight='bold')
@@ -156,52 +120,5 @@ def plot_foreground(tight=False, kwargs=dict()):
             plt.tight_layout()
     except Exception:
         tr.print_exc()
-
-
-def finalize():
-    metadata = {
-        'Title'        : 'Characters Current Alignement Chart Evolution',
-        'Author'       : 'Julien Alardot',
-        'Description'  : 'Characters Current Alignement Chart Evolution',
-        'Copyright'    : 'All Right Reserved by Julien Alardot',
-        'Creation Time': time.ctime()
-    }
-    plt.savefig(fname=r'out\AlignementChartTransparent_high.png', dpi=600, format='png', transparent=True,
-                metadata=metadata)
-    plt.savefig(fname=r'out\AlignementChart_high.png', dpi=600, format='png', transparent=False, metadata=metadata)
-    
-    plt.savefig(fname=r'out\AlignementChartTransparent_med.png', dpi=300, format='png', transparent=True,
-                metadata=metadata)
-    plt.savefig(fname=r'out\AlignementChart_med.png', dpi=300, format='png', transparent=False, metadata=metadata)
-    
-    plt.savefig(fname=r'out\AlignementChartTransparent_low.png', dpi=72, format='png', transparent=True,
-                metadata=metadata)
-    plt.savefig(fname=r'out\AlignementChart_low.png', dpi=72, format='png', transparent=False, metadata=metadata)
-
-
-kwargs = {
-    'n_row'   : 10000,
-    'n_column': 2,
-    'min'     : -1.0,
-    'max'     : 1.0,
-    's'       : 0.05
-}
-# plt.subplot(1, 2, 1)
-# data = gen_rand_array(**kwargs)
-# plt.scatter(data=data, x="x", y="y")
-# plt.xlim(-1.1, 1.1)
-# plt.ylim(-1.1, 1.1)
-# plt.plot()
-#
-# plt.subplot(1, 2, 2)
-# data = square_root(data)
-#
-# plt.scatter(data=data, x="x", y="y")
-# plt.xlim(-1.1, 1.1)
-# plt.ylim(-1.1, 1.1)
-# plt.plot()
-#
-# plt.tight_layout()
-# plt.show()
 
 # Endfile
