@@ -6,15 +6,14 @@ import numpy as np
 import traceback as tr
 from scipy.interpolate import make_interp_spline
 
-
-def gen_rand_array(n_row=100, n_column=2, min=-1.0, max=1.0, s=0.1):
-    array = list()
-    for row in range(n_row):
-        array.append(rand.choices(np.arange(min, max + s, s), k=n_column))
-    return pd.DataFrame(np.array(array), columns=["x", "y"])
-
-
 def map_to_circle(df):
+    """
+    Remap DataFrame values to a circle of R=1
+    :param df: DataFrame with two columns "x" and "y"
+    :type df: pandas.DataFrame
+    :return: DataFrame with values remapped to a circle of R=1
+    :rtype: pandas.DataFrame
+    """
     for i, row in enumerate(df.values):
         x, y = row
         ratio1 = max(1e-15, math.sqrt(x ** 2 + y ** 2))
@@ -28,6 +27,15 @@ def map_to_circle(df):
 
 
 def rotatematrix(array, kwargs, angle=180):
+    """
+    Try to apply a rotation matrix to an existing array and plot the result
+    :param array: input array or dataframe
+    :param kwargs: kwargs for the plotting methods
+    :param angle: (optional) angle in degree for the rotation matrix, default is 180
+    :type array: numpy.array or pandas.DataFrame
+    :type kwargs: dict
+    :type angle: float
+    """
     angle = np.radians(angle)
     rotation_matrix = np.array([[np.cos(angle), -np.sin(angle)], [np.sin(angle), np.cos(angle)]])
     new_array = list()
@@ -48,6 +56,13 @@ def rotatematrix(array, kwargs, angle=180):
 
 
 def plot_background(n=100, kwargs=dict()):
+    """
+    Try to plot the line elements in bachground of the image, the circle and separation between alignment areas
+    :param n: (optional) 'Quality' of the lines drawn, use carefully with high values, default is 100
+    :param kwargs: (optional) kwargs for the plotting methods, default is empty
+    :type n: int
+    :type kwargs: dict
+    """
     n = int(n)
     try:
         plt.figure(figsize=(5,5), constrained_layout=True)
@@ -80,6 +95,13 @@ def plot_background(n=100, kwargs=dict()):
 
 
 def plot_foreground(tight=False, kwargs=dict()):
+    """
+    Try to plot the text elements of the graph and everything that needs to be on top ov the rest
+    :param tight: (optional) if True will call plt.tight_layout() at the end, default is False
+    :param kwargs: (optional) kwargs for the plotting methods, default is empty
+    :type tight: bool
+    :type kwargs: dict
+    """
     try:
         df = pd.DataFrame(np.array([[-2 / 3, 2 / 3], [0.0, 2 / 3], [2 / 3, 2 / 3], [-2 / 3, 0], [0.0, 0],
                                     [2 / 3, 0], [-2 / 3, -2 / 3], [0.0, -2 / 3], [2 / 3, -2 / 3]]))
