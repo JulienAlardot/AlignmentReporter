@@ -1,13 +1,12 @@
 from setuptools import setup, find_packages
-
 setup(
         name='AlignR',
-        version='1.0.0',
+        version='1.0.1',
         packages=find_packages(),
-        url='https://github.com/Celtaidd/AlignmentReporter',
+        url='https://github.com/JulienAlardot/AlignmentReporter',
         license='MIT',
         author='Julien Alardot',
-        author_email='alardot.j@gmail.com',
+        author_email='alardotj.pro@gmail.com',
         description='Simple Tool to track the alignments of your players',
         long_description=open('README.md').read(),
         include_package_data=True,
@@ -15,7 +14,7 @@ setup(
             "Programming Language :: Python",
             "Natural Language :: English",
             "Operating System :: Windows",
-            "Programming Language :: Python :: 3.6",
+            "Programming Language :: Python :: 3.8",
             "Topic :: Roleplaying Games Tools",
         ],
         zip_safe=False,

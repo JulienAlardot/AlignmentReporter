@@ -790,7 +790,7 @@ class mainWindow(QMainWindow):
                                                                                       min_periods=1).mean().iloc[
                                      max(0, self.data["sb_rolling_window_size"] - self.data["sb_first_entry_weight"]):,
                                      :]
-                    mean_df = vis.square_root(mean_df_normal)
+                    mean_df = vis.map_to_circle(mean_df_normal)
                     
                     mean_df["alpha"] = np.logspace(-0.5, 0, mean_df.shape[0])
                     ha = 'left' if self.data['legend_text_alignment'] == 0 else "center" \
@@ -955,7 +955,6 @@ SCATTER_KWARGS = {
     "marker": 'o'
     
 }
-EXCEL_FILE = os.path.join(PATH, "AlignementData.xlsx")
 
 global app
 def launch():
@@ -969,7 +968,7 @@ def launch():
     app = QApplication(sys.argv)
     app.setApplicationName("partyAlignmentChartTool")
     app.setApplicationDisplayName("Party Alignment Chart Tool")
-    app.setApplicationVersion("1.0.0")
+    app.setApplicationVersion("1.0.1")
     app.setOrganizationName("Julien Alardot")
     win = mainWindow(input("Savefile Name: "))
     win.resize(0, 0)
