@@ -266,7 +266,8 @@
     },
     "previous_marker": 3,
     "sb_first_entry_weight": 100,
-    "sb_image_dpi": 900,
+    "sb_image_dpi": 500,
     "sb_rolling_window_size": 100,
-    "title_alignment": 1
+    "title_alignment": 1,
+    "out_path": ""
 }

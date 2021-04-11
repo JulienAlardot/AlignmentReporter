@@ -7,13 +7,14 @@
     "hs_legend_h_offset": -93,
     "hs_legend_stretch": 7,
     "hs_legend_v_offset": 35,
-    "hs_line_quality": 97,
+    "hs_line_quality": 43,
     "hs_scale": 36,
     "image_format": 0,
     "le_current_custom": "",
     "le_image_title": "Celtaidd's Murder Hobos",
     "le_previous_custom": "",
     "legend_text_alignment": 0,
+    "out_path": "D:\\Utilisateurs\\Julien\\Documents\\BeCode\\AlignmentReporter\\AlignmentReporter\\out",
     "player": {
         "Color": "Black",
         "Entries": [],
@@ -84,7 +85,7 @@
     },
     "previous_marker": 7,
     "sb_first_entry_weight": 100,
-    "sb_image_dpi": 900,
+    "sb_image_dpi": 2000,
     "sb_rolling_window_size": 40,
     "title_alignment": 1
 }
