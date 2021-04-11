@@ -1,10 +1,11 @@
-from matplotlib import pyplot as plt
-import random as rand
 import math
-import pandas as pd
-import numpy as np
 import traceback as tr
+
+import numpy as np
+import pandas as pd
+from matplotlib import pyplot as plt
 from scipy.interpolate import make_interp_spline
+
 
 def map_to_circle(df):
     """
@@ -26,12 +27,14 @@ def map_to_circle(df):
     return df
 
 
-def rotatematrix(array, kwargs, angle=180):
+def rotatematrix(array, kwargs, order=2., angle=180):
     """
     Try to apply a rotation matrix to an existing array and plot the result
     :param array: input array or dataframe
     :param kwargs: kwargs for the plotting methods
     :param angle: (optional) angle in degree for the rotation matrix, default is 180
+    :param order: zorder for the plot() function
+    :type order:float
     :type array: numpy.array or pandas.DataFrame
     :type kwargs: dict
     :type angle: float
@@ -50,9 +53,9 @@ def rotatematrix(array, kwargs, angle=180):
         xnew = np.linspace(array["x"].min(), array["x"].max(), 200)
         spl = make_interp_spline(tuple(array["x"]), array["y"], k=2)
         power_smooth = spl(xnew)
-        plt.plot(xnew, power_smooth, **kwargs)
+        plt.plot(xnew, power_smooth, zorder=order **kwargs)
     except Exception:
-        plt.plot(array["x"], array["y"], **kwargs)
+        plt.plot(array["x"], array["y"], zorder=order, **kwargs)
 
 
 def plot_background(n=100, kwargs=dict()):
@@ -65,7 +68,7 @@ def plot_background(n=100, kwargs=dict()):
     """
     n = int(n)
     try:
-        plt.figure(figsize=(5,5), constrained_layout=True)
+        plt.figure(figsize=(5, 5), constrained_layout=True)
         x = np.linspace(-1.0, 1.0, n)
         x_small = np.linspace(-1.0, 1.0, round(math.sqrt(n) * 2))
         
@@ -76,7 +79,7 @@ def plot_background(n=100, kwargs=dict()):
         for bar in bars:
             df_no_mid = map_to_circle(pd.DataFrame(np.array(bar).transpose(), columns=["x", "y"])).set_index("x")
             for angle in np.linspace(0, 270, 4):
-                rotatematrix(df_no_mid, kwargs, angle)
+                rotatematrix(df_no_mid, kwargs,order=1, angle=angle)
         
         y = np.array([math.sqrt(1 - v ** 2) for v in x])
         bkwards = kwargs.copy()
@@ -85,8 +88,8 @@ def plot_background(n=100, kwargs=dict()):
         plt.plot(x, -y, zorder=1, **bkwards)
         
         inner_circle = pd.DataFrame(
-                np.array([x_small / 3, np.array([math.sqrt((1 / 9) - v ** 2) for v in x_small / 3])]).transpose(),
-                columns=['x', 'y'])
+            np.array([x_small / 3, np.array([math.sqrt((1 / 9) - v ** 2) for v in x_small / 3])]).transpose(),
+            columns=['x', 'y'])
         plt.plot(inner_circle['x'], inner_circle['y'], zorder=1, **kwargs)
         plt.plot(inner_circle['x'], -inner_circle['y'], zorder=1, **kwargs)
     
@@ -103,30 +106,41 @@ def plot_foreground(tight=False, kwargs=dict()):
     :type kwargs: dict
     """
     try:
-        df = pd.DataFrame(np.array([[-2 / 3, 2 / 3], [0.0, 2 / 3], [2 / 3, 2 / 3], [-2 / 3, 0], [0.0, 0],
-                                    [2 / 3, 0], [-2 / 3, -2 / 3], [0.0, -2 / 3], [2 / 3, -2 / 3]]))
+        df = pd.DataFrame(
+            np.array(
+                [[-2 / 3, 2 / 3], [0.0, 2 / 3], [2 / 3, 2 / 3], [-2 / 3, 0], [0.0, 0],
+                 [2 / 3, 0], [-2 / 3, -2 / 3], [0.0, -2 / 3], [2 / 3, -2 / 3]]))
         df = map_to_circle(df)
         
-        plt.annotate("LG", df.loc[0], ha="center", va='center', fontsize=kwargs['fontsize'],
-                     fontweight='bold')
-        plt.annotate("NG", df.loc[1], ha="center", va='center', fontsize=kwargs['fontsize'],
-                     fontweight='bold')
-        plt.annotate("CG", df.loc[2], ha="center", va='center', fontsize=kwargs['fontsize'],
-                     fontweight='bold')
-
-        plt.annotate("LN", df.loc[3], ha="left", va='center', fontsize=kwargs['fontsize'],
-                     fontweight='bold')
-        plt.annotate("TN", df.loc[4], ha="center", va='center', fontsize=kwargs['fontsize'],
-                     fontweight='bold')
-        plt.annotate("CN", df.loc[5], ha="center", va='center', fontsize=kwargs['fontsize'],
-                     fontweight='bold')
-
-        plt.annotate("LE", df.loc[6], ha="center", va='center', fontsize=kwargs['fontsize'],
-                     fontweight='bold')
-        plt.annotate("NE", df.loc[7], ha="center", va='center', fontsize=kwargs['fontsize'],
-                     fontweight='bold')
-        plt.annotate("CE", df.loc[8], ha="center", va='center', fontsize=kwargs['fontsize'],
-                     fontweight='bold')
+        plt.annotate(
+            "LG", df.loc[0], ha="center", va='center', fontsize=kwargs['fontsize'],
+            fontweight='bold')
+        plt.annotate(
+            "NG", df.loc[1], ha="center", va='center', fontsize=kwargs['fontsize'],
+            fontweight='bold')
+        plt.annotate(
+            "CG", df.loc[2], ha="center", va='center', fontsize=kwargs['fontsize'],
+            fontweight='bold')
+        
+        plt.annotate(
+            "LN", df.loc[3], ha="left", va='center', fontsize=kwargs['fontsize'],
+            fontweight='bold')
+        plt.annotate(
+            "TN", df.loc[4], ha="center", va='center', fontsize=kwargs['fontsize'],
+            fontweight='bold')
+        plt.annotate(
+            "CN", df.loc[5], ha="center", va='center', fontsize=kwargs['fontsize'],
+            fontweight='bold')
+        
+        plt.annotate(
+            "LE", df.loc[6], ha="center", va='center', fontsize=kwargs['fontsize'],
+            fontweight='bold')
+        plt.annotate(
+            "NE", df.loc[7], ha="center", va='center', fontsize=kwargs['fontsize'],
+            fontweight='bold')
+        plt.annotate(
+            "CE", df.loc[8], ha="center", va='center', fontsize=kwargs['fontsize'],
+            fontweight='bold')
         plt.axis('square')
         plt.axis("off")
         plt.xlim(-1.5, 1.5)
@@ -136,7 +150,7 @@ def plot_foreground(tight=False, kwargs=dict()):
         if title:
             text = kwargs['title']
             alignment = kwargs['alignment'] if kwargs['alignment'] else 'center'
-            plt.title(text, y=0.9, loc=alignment, fontsize=kwargs['fontsize']*1.1, fontweight='bold')
+            plt.title(text, y=0.9, loc=alignment, fontsize=kwargs['fontsize'] * 1.1, fontweight='bold')
         
         if tight:
             plt.tight_layout()
