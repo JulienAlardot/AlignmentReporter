@@ -16,11 +16,11 @@ from PySide2.QtWidgets import QSizePolicy, QMainWindow, QApplication, QLabel
 from multiprocessing import Pool
 
 import AlignmentReporter.Vizualisation as vis
+import AlignmentReporter.UI.Qt.AlignmentReporterRessources as ar_r
 
 path = __file__.split("UI")[0]
 
-with open(os.path.join(path, "UI", "Qt", "style.css"), "r") as f:
-    style = f.read()
+
 
 icon_path = os.path.join(path, "UI", "Qt")
 
@@ -97,12 +97,14 @@ class mainWindow(QMainWindow):
         """
         # Window setup
         super(mainWindow, self).__init__()
+        with open(os.path.join(path, "UI", "Qt", "style.css"), "r") as f:
+            style = f.read()
         self.setStyleSheet(style)
         loader = QUiLoader()
-        file = QFile(os.path.join(path, "UI", "Qt", "mainWindow.ui"))
-        file.open(QFile.ReadOnly)
-        self.centralWidget = loader.load(file, self)
-        file.close()
+        f = QFile(os.path.join(path, "UI", "Qt", "mainWindow.ui"))
+        f.open(QFile.ReadOnly)
+        self.centralWidget = loader.load(f, self)
+        f.close()
         self.setWindowIcon(
             QIcon(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'AlignmentTool.ico')))
         self.setUI = settingWindow(self)
@@ -321,19 +323,21 @@ class mainWindow(QMainWindow):
         except Exception:
             tr.print_exc()
     
-    def progressUpdate(self, set=False, start=None, stop=None, i=1, current=None):
+    def progressUpdate(self, set=False, start=None, stop=None, i=1, current=None, fullstop=False):
         """
         Method used to control the main QProgressbar and call the method 'show' and 'hide' of its QFrame container
         :param set: (optional) Reset the progress to 0 or given value
         :param start: (optional) If given and 'set=True', will set the minimum value for the progress bar, default is 0
         :param stop: (optional) If given and 'set=True', will set the maximum value for the progress bar, default is 100
         :param i: (optional) If given, will increase the current value by the given value, default is 1
-        :param current: (optional) If given, will hard
+        :param current: (optional) If given, will hardwrite the current value
+        :param fullstop: (optional) If given, will stop and hide the progress bar
         :type set: bool
         :type start: int or float
         :type stop: int or float
         :type i: int
         :type current: int or float
+        :type fullstop: bool
         """
         bar = self.centralWidget.prb_preview
         if set:
@@ -363,9 +367,9 @@ class mainWindow(QMainWindow):
         bar.setMinimum(self.__start)
         bar.setMaximum(self.__stop)
         bar.setValue(self.__current)
-        self.update()
-        if bar.value() >= bar.maximum():
+        if bar.value() >= bar.maximum() or fullstop:
             self.centralWidget.f_progress_bar.hide()
+        self.update()
     
     @property
     def current_player_data(self):
@@ -482,9 +486,7 @@ class mainWindow(QMainWindow):
                 
                 self.savefig(f, min(self.data['sb_image_dpi'], 500), "png", q=6, t=True)
             self.centralWidget.l_image.setPixmap(
-                QPixmap(f).scaled(
-                    np.array(self.centralWidget.l_image.size()) * 1,
-                    mode=Qt.SmoothTransformation,
+                QPixmap(f).scaled(np.array(self.centralWidget.l_image.size()) * 1, mode=Qt.SmoothTransformation,
                     aspectMode=Qt.KeepAspectRatio))
         except KeyError:
             pass
@@ -748,6 +750,7 @@ class mainWindow(QMainWindow):
                 tasks += (len(player["Entries"]) - 1) * 2
             self.progressUpdate(True, 0, 10 + tasks + line_qual, 1, 0)
         try:
+            self.centralWidget.pb_generate.setEnabled(False)
             self.loop = QThread()
             self.workers = list()
             
@@ -770,17 +773,17 @@ class mainWindow(QMainWindow):
             self.workers.append(worker)
         except Exception:
             tr.print_exc()
+            self.centralWidget.pb_generate.setEnabled(True)
     
     def getGeneratedImage(self):
-        self.centralWidget.l_image.resized.emit()
         self.update()
-        self.advanced.emit()
-        self.advanced.emit()  # Force value Overflow
-        self.advanced.emit()
-        self.advanced.emit()
-        self.advanced.emit()
         self.finished = True
         self.loop.quit()
+        time.sleep(0.2)
+        self.image = self.__TMP
+        self.progressUpdate(fullstop=True)
+        self.centralWidget.pb_generate.setEnabled(True)
+        self.update()
 
 
 def compute_time(t):
@@ -863,7 +866,7 @@ class Worker(QObject):
             line_qual = int(360 * (10 ** np.linspace(-0.5, 3.8, 100)[data["hs_line_quality"]]))
             
             vis.plot_background(n=line_qual, kwargs=BACKGROUND_KWARGS)
-            for i in range(line_qual):
+            for i in range(line_qual): #Fixme: Maybe not do that
                 self.signal.emit()
             t = data["le_image_title"] if data["chb_image_title"] else False
             alignment = 'left' if data["title_alignment"] == 0 else 'right' if data[
@@ -947,7 +950,6 @@ class Worker(QObject):
                                 kwargs['s'] = scale * data["hs_current_scale"] / 10.0
                             plt.scatter(data=row, x='x', y='y', color=color, **kwargs)
                         self.signal.emit()
-                        self.signal.emit()
                     first_row = pd.DataFrame(mean_df_normal.iloc[0, :]).transpose()
                     last_row = pd.DataFrame(mean_df_normal.iloc[mean_df_normal.shape[0] - 1, :]).transpose()
                     y = int(round(1 - first_row["y"]))
@@ -956,8 +958,6 @@ class Worker(QObject):
                     x_o = int(round(last_row["x"] + 1))
                     p_o_al = al[y][x]
                     p_al = al[y_o][x_o]
-                    # p_o_al = al[1 - int(round(first_row["y"][0])),int(round(first_row["x"][0] + 1))]
-                    # p_al = al[1 - int(round(last_row["y"][0])),int(round(last_row["x"][0] + 1))]
                     
                     plt.annotate(
                         player["Name"] + ":\n{} -> {}".format(p_o_al, p_al), xy=pos, color=color, ha=ha,
@@ -985,8 +985,6 @@ class Worker(QObject):
             self.savefig(t, im_size, 'png', q=6, t=True)
             self.signal.emit()
             self.savefig(f)
-            self.signal.emit()
-            self.finished.emit()
         except Exception:
             tr.print_exc()
     
@@ -1015,6 +1013,7 @@ class Worker(QObject):
         plt.savefig(
             fname=out, dpi=dpi, format=f, transparent=t,
             pil_kwargs={'quality': int(round(q)), "metadata": metadata})
+        self.finished.emit()
 
 
 PATH = __file__.split("__init__")[0]
@@ -1070,7 +1069,6 @@ def launch():
         app.setOrganizationName("Julien Alardot")
         win = mainWindow(input("Savefile Name: "))
         win.resize(0, 0)
-        # win.setFocus()
         app.setWindowIcon(QIcon(os.path.join(PATH, "UI", "AlignmentTool.icon")))
         app.connect(app, SIGNAL("lastWindowClosed()"), app, SLOT("quit()"))
         app.setActiveWindow(win)
