@@ -2,7 +2,7 @@ QWidget{
     background: #CBCBD6;
     border-color: #4E4E57;
     padding:10px;
-    font-size: 18px;
+    font-size: 10px;
 }
 QFrame{
     border-style: solid;
@@ -17,20 +17,21 @@ QFrame[holder="true"]{
 QFrame#f_main{
     border-style: inset;
 }
-QFrame#w_main_window, QFrame#f_current_custom, QFrame#f_previous_custom{
+QFrame#w_main_window, QFrame#f_current_custom, QFrame#f_progress_bar,QFrame#f_previous_custom{
     border-style: none;
     padding: 1px;
 }
-QFrame#f_players, QFrame#f_legend_stretch, QFrame#f_legend_offset, QFrame#f_legend_text_alingment,QFrame#f_previous_markers, QFrame#f_current_marker, QFrame#f_jpeg_quality, QFrame#f_image_settings, QFrame#f_image_format{
+QFrame#f_players, QFrame#f_legend_stretch, QFrame#f_legend_offset, QFrame#f_legend_text_alingment,
+QFrame#f_previous_markers, QFrame#f_current_marker, QFrame#f_jpeg_quality, QFrame#f_image_settings,
+QFrame#f_image_format{
     border-style: inset;
     border-width: 2px;
     border-radius: 2px;
 }
 QFrame#f_legend_stretch, QFrame#f_current_scale, QFrame#f_legend_offset, QFrame#f_legend_text_alingment,
-QFrame#f_previous_markers, QFrame#f_scale, QLabel#l_scale_high, QLabel#l_scale_low,
-QFrame#f_current_marker, QFrame#f_jpeg_quality, QFrame#f_image_settings, QFrame#f_image_format, QLabel#l_line_high,
-QLabel#l_current_scale_high, QLabel#l_current_scale_low, QLabel#l_line_low, QLabel#l_jpeg_low, QLabel#l_jpeg_high,
-QLabel#l_legend_offset_up,
+QFrame#f_previous_markers, QFrame#f_scale, QLabel#l_scale_high, QLabel#l_scale_low, QFrame#f_current_marker,
+QFrame#f_jpeg_quality, QFrame#f_image_settings, QFrame#f_image_format, QLabel#l_line_high, QLabel#l_current_scale_high,
+QLabel#l_current_scale_low, QLabel#l_line_low, QLabel#l_jpeg_low, QLabel#l_jpeg_high, QLabel#l_legend_offset_up,
 QLabel#l_legend_offset_left, QLabel#l_legend_offset_down, QLabel#l_legend_offset_right, QLabel#l_legend_stretch_low,
 QLabel#l_legend_stretch_high, QFrame#f_title_settings,  QSlider, QRadioButton, QFrame#f_previous_custom,
 QFrame#f_current_custom{
@@ -182,7 +183,7 @@ QLabel#l_bottom{
     border-style: none;
 }
 QProgressBar{
-    border-style: inset;
+    border-style: None;
     border-width: 2px;
     border-radius: 5px;
     background: #A5A5AD;

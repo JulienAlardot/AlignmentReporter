@@ -25,7 +25,7 @@ with open(os.path.join(path, "UI", "Qt", "style.css"), "r") as f:
 icon_path = os.path.join(path, "UI", "Qt")
 
 
-# TODO: Add "Add Party" option and automatise the Party Player
+
 class settingWindow(QMainWindow):
     def __init__(self, parent=None):
         """
@@ -43,7 +43,7 @@ class settingWindow(QMainWindow):
         # self.setParent(parent)
         self.setWindowTitle("Image Settings")
         self.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Minimum)
-        self.setMinimumSize(self.centralWidget.minimumSize())
+        # self.setMinimumSize(self.centralWidget.minimumSize())
         self.assignWidgets()
         self.setWindowFlags(Qt.Window)
         with open(os.path.join(path, "UI", "Qt", "style.css"), "r") as f:
@@ -772,10 +772,10 @@ class mainWindow(QMainWindow):
             tr.print_exc()
     
     def getGeneratedImage(self):
-        print("entered")
         self.centralWidget.l_image.resized.emit()
+        self.update()
         self.advanced.emit()
-        self.advanced.emit()  # Forced value Overflow
+        self.advanced.emit()  # Force value Overflow
         self.advanced.emit()
         self.advanced.emit()
         self.advanced.emit()
