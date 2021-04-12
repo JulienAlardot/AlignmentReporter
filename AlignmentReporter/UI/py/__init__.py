@@ -160,7 +160,9 @@ class mainWindow(QMainWindow):
         self.centralWidget.tb_settings.released.connect(self.setUI.show)
         self.centralWidget.pb_save_quit.released.connect(self.close)
         self.centralWidget.pb_set_color.released.connect(self.setPlayerColor)
+        self.centralWidget.pb_set_party_color.released.connect(self.setPartyColor)
         self.centralWidget.pb_set_name.released.connect(self.setPlayerName)
+        self.centralWidget.pb_set_party_name.released.connect(self.setPartyName)
         self.centralWidget.pb_set_title.released.connect(self.setTitle)
         self.centralWidget.pb_add_player_entry.released.connect(self.addEntry)
         self.centralWidget.pb_delete_player_entry.released.connect(self.delEntry)
@@ -170,6 +172,7 @@ class mainWindow(QMainWindow):
         self.centralWidget.cob_players_select.currentIndexChanged.connect(self.updatePlayer)
         self.centralWidget.pb_generate.released.connect(self.runGenerateImage)
         self.centralWidget.pb_save.released.connect(self.save)
+        # self.centralWidget.gb_add_auto_party.toggled.connect(self.clicked_party_player)
         self.advanced.connect(self.progressUpdate)
     
     def updateSignalBlock(self, state):
@@ -415,9 +418,9 @@ class mainWindow(QMainWindow):
     
     def load(self, js=True):
         """
-        Method that sets current player data dictionnary values into UI placeholderText values
-        :param data: (optional) override current player data and force given values
-        :type data: dict
+        Method that loads save dato into UI
+        :param js: (optional) Force json save file
+        :type js: book
         """
         with open(self.savefile, 'rb') as f:
             try:
@@ -545,6 +548,11 @@ class mainWindow(QMainWindow):
             data["sb_first_entry_weight"] = w.sb_first_entry_weight.value()
             data["sb_rolling_window_size"] = w.sb_rolling_window_size.value()
             data["cob_players_select"] = w.cob_players_select.currentIndex()
+            data["gb_add_auto_party"] = w.gb_add_auto_party.isChecked()
+            data["le_party_color"] = w.le_party_color.placeholderText()
+            data["le_party_name"] = w.le_party_name.placeholderText()
+            data["cob_party_starting_aligmnent"] = w.cob_party_starting_aligmnent.currentText()
+            data["rb_average"] = w.rb_party_average.isChecked()
             data['out_path'] = os.path.realpath((ww.le_output_path.text())) if ww.le_output_path.text() else \
                 os.path.realpath((ww.le_output_path.placeholderText()))
             data["image_format"] = 0 if ww.rb_png.isChecked() else 1 if ww.rb_png_transparency.isChecked() else 2
@@ -557,6 +565,10 @@ class mainWindow(QMainWindow):
             data["hs_legend_v_offset"] = ww.hs_legend_v_offset.value()
             data["hs_legend_stretch"] = ww.hs_legend_stretch.value()
             data["hs_scale"] = ww.hs_scale.value()
+
+            data["le_party_color"] = w.le_party_color.placeholderText()
+            data["le_party_name"] = w.le_party_name.placeholderText()
+            
             data["legend_text_alignment"] = 0 if ww.rb_legend_text_left.isChecked() else 1 if \
                 ww.rb_legend_text_center.isChecked() else 2
             data["le_current_custom"] = ww.le_current_custom.text()
@@ -606,7 +618,17 @@ class mainWindow(QMainWindow):
             w.sb_first_entry_weight.setValue(self.data["sb_first_entry_weight"])
             w.sb_rolling_window_size.setValue(self.data["sb_rolling_window_size"])
             
+            w.gb_add_auto_party.setChecked(self.data["gb_add_auto_party"])
+            w.cob_party_starting_aligmnent.setCurrentIndex(
+                w.cob_party_starting_aligmnent.findText(self.data["cob_party_starting_aligmnent"]))
+            w.rb_party_average.setChecked(self.data["rb_average"])
+            
             ww.hs_current_scale.setValue(self.data["hs_current_scale"])
+            
+
+            w.le_party_color.setPlaceholderText(self.data["le_party_color"])
+            w.le_party_name.setPlaceholderText(self.data["le_party_name"])
+            
             if current_player in self.data['players'].keys():
                 p = self.data['players'][current_player]
                 w.le_player_color.setPlaceholderText(p['Color'])
@@ -667,32 +689,59 @@ class mainWindow(QMainWindow):
         except Exception:
             tr.print_exc()
         self.updateSignalBlock(False)
-    
-    def setPlayerColor(self):
+        
+    def setColor(self, in_le):
         """
-        Method that verifies if the given color value is valid, if so update QLabel placeholder value and change focus
+        Method that verifies if the given color value is valid, if so update QLabel placeholder value and change
+        focus
         """
         colors = ['black', 'blue', 'brown', 'cyan', 'darkblue', 'darkcyan', 'darkgray', 'darkgreen', 'darkmagenta',
                   'darkred', 'gray', 'green', 'lightblue', 'lightcyan', 'lightgray', 'lightgreen', 'lightmagenta',
                   'lightred', 'magenta', 'orange', 'red', 'white', 'yellow', "pink", ""]
         # FIXME: Some colors return an error, they need to be checked and possibly extended
-        if self.centralWidget.le_player_color.text().lower() in colors:
-            if self.centralWidget.le_player_color.text():
-                self.centralWidget.le_player_color.setPlaceholderText(
-                    self.centralWidget.le_player_color.text().capitalize())
-                self.centralWidget.le_player_color.setText("")
-            self.centralWidget.le_player_entry.setFocus()
+        if in_le is self.centralWidget.le_player_color:
+            if self.centralWidget.le_player_color.text().lower() in colors:
+                if self.centralWidget.le_player_color.text():
+                    self.centralWidget.le_player_color.setPlaceholderText(
+                        self.centralWidget.le_player_color.text().capitalize())
+                    self.centralWidget.le_player_color.setText("")
+                self.centralWidget.le_player_entry.setFocus()
+            
+        elif in_le is self.centralWidget.le_party_color:
+            if self.centralWidget.le_party_color.text().lower() in colors:
+                if self.centralWidget.le_party_color.text():
+                    self.centralWidget.le_party_color.setPlaceholderText(
+                        self.centralWidget.le_party_color.text().capitalize())
+                    self.centralWidget.le_party_color.setText("")
+                self.centralWidget.le_player_name.setFocus()
         self.update_data()
     
-    def setPlayerName(self):
+    def setPlayerColor(self):
+        self.setColor(self.centralWidget.le_player_color)
+        
+    def setPartyColor(self):
+        self.setColor(self.centralWidget.le_party_color)
+    
+    def setName(self, le_name):
         """
         Method that update player name if a new value was given, then changes focus
         """
-        if self.centralWidget.le_player_name.text():
-            self.centralWidget.le_player_name.setPlaceholderText(self.centralWidget.le_player_name.text())
-            self.centralWidget.le_player_name.setText("")
-        self.centralWidget.le_player_color.setFocus()
+        if le_name is self.centralWidget.le_player_name:
+            if self.centralWidget.le_player_name.text():
+                self.centralWidget.le_player_name.setPlaceholderText(self.centralWidget.le_player_name.text())
+                self.centralWidget.le_player_name.setText("")
+            self.centralWidget.le_player_color.setFocus()
+            
+        elif le_name is self.centralWidget.le_party_name:
+            if self.centralWidget.le_party_name.text():
+                self.centralWidget.le_party_name.setPlaceholderText(self.centralWidget.le_party_name.text())
+                self.centralWidget.le_party_name.setText("")
+            self.centralWidget.le_party_color.setFocus()
         self.update_data()
+        
+    def setPlayerName(self):
+        self.setName(self.centralWidget.le_player_name)
+        
     
     def setTitle(self):
         if self.centralWidget.le_image_title.text():
