@@ -1,97 +1,83 @@
 {
-  "chb_image_title": true,
-  "cob_players_select": 0,
-  "current_marker": 5,
-  "hs_current_scale": 41,
-  "hs_jpeg_qual": 8,
-  "hs_legend_h_offset": -93,
-  "hs_legend_stretch": 7,
-  "hs_legend_v_offset": 35,
-  "hs_line_quality": 43,
-  "hs_scale": 36,
-  "image_format": 0,
-  "le_current_custom": "",
-  "le_image_title": "Celtaidd's Murder Hobos",
-  "le_previous_custom": "",
-  "legend_text_alignment": 0,
-  "out_path": "D:\\Utilisateurs\\Julien\\Documents\\BeCode\\AlignmentReporter\\AlignmentReporter\\out",
-  "player": {
-    "Color": "Black",
-    "Entries": [],
-    "Name": "Player Name"
-  },
-  "players": {
-    "Ezren D.": {
-      "Color": "Darkblue",
-      "Entries": [
-        "NB",
-        "LN",
-        "LE",
-        "NE"
-      ],
-      "Name": "Ezren D."
+    "chb_image_title": true,
+    "cob_party_starting_aligmnent": "Average",
+    "cob_players_select": 3,
+    "current_marker": 5,
+    "gb_add_auto_party": true,
+    "hs_current_scale": 41,
+    "hs_jpeg_qual": 8,
+    "hs_legend_h_offset": -93,
+    "hs_legend_stretch": 7,
+    "hs_legend_v_offset": 35,
+    "hs_line_quality": 43,
+    "hs_scale": 36,
+    "image_format": 0,
+    "le_current_custom": "",
+    "le_image_title": "Celtaidd's Murder Hobos",
+    "le_party_color": "Grey",
+    "le_party_name": "Party Name",
+    "le_previous_custom": "",
+    "legend_text_alignment": 0,
+    "out_path": "D:\\Utilisateurs\\Julien\\Documents\\BeCode\\AlignmentReporter\\AlignmentReporter\\out",
+    "player": {
+        "Color": "Cyan",
+        "Entries": [
+            "LB",
+            "LB",
+            "G",
+            "LG",
+            "G",
+            "LG"
+        ],
+        "Name": "Sam"
     },
-    "Jessica U.": {
-      "Color": "Darkred",
-      "Entries": [
-        "TN",
-        "NG"
-      ],
-      "Name": "Jessica U."
+    "players": {
+        "Ezren D.": {
+            "Color": "Darkblue",
+            "Entries": [
+                "NB",
+                "LN",
+                "LE",
+                "NE"
+            ],
+            "Name": "Ezren D."
+        },
+        "Jessica U.": {
+            "Color": "Darkred",
+            "Entries": [
+                "TN",
+                "NG"
+            ],
+            "Name": "Jessica U."
+        },
+        "Sam": {
+            "Color": "Cyan",
+            "Entries": [
+                "LB",
+                "LB",
+                "G",
+                "LG",
+                "G",
+                "LG"
+            ],
+            "Name": "Sam"
+        },
+        "Tchar": {
+            "Color": "Green",
+            "Entries": [
+                "LE",
+                "LE",
+                "LE",
+                "B",
+                "TN"
+            ],
+            "Name": "Tchar"
+        }
     },
-    "Party": {
-      "Color": "Magenta",
-      "Entries": [
-        "TN",
-        "LN",
-        "LE",
-        "LB",
-        "G",
-        "LG",
-        "LE",
-        "LE",
-        "B",
-        "G",
-        "NG",
-        "NE",
-        "TN",
-        "LG"
-      ],
-      "Name": "Party"
-    },
-    "Sam": {
-      "Color": "Cyan",
-      "Entries": [
-        "LB",
-        "LB",
-        "G",
-        "LG",
-        "G",
-        "LG"
-      ],
-      "Name": "Sam"
-    },
-    "Tchar": {
-      "Color": "Green",
-      "Entries": [
-        "LE",
-        "LE",
-        "LE",
-        "B",
-        "TN"
-      ],
-      "Name": "Tchar"
-    }
-  },
-  "previous_marker": 7,
-  "sb_first_entry_weight": 100,
-  "sb_image_dpi": 2000,
-  "sb_rolling_window_size": 40,
-  "title_alignment": 1,
-  "gb_add_auto_party": true,
-  "cob_party_starting_aligmnent": "Average",
-  "rb_average": true,
-  "le_party_name": "Average",
-  "le_party_color": "Grey"
-}
+    "previous_marker": 7,
+    "rb_average": true,
+    "sb_first_entry_weight": 100,
+    "sb_image_dpi": 2000,
+    "sb_rolling_window_size": 40,
+    "title_alignment": 1
 }

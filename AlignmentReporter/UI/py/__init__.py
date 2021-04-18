@@ -7,23 +7,21 @@ import time
 import traceback as tr
 
 import matplotlib.pyplot as plt
+import numba as nb
 import numpy as np
 import pandas as pd
 from PySide2.QtCore import QFile, Qt, Signal, SIGNAL, SLOT, QThread, QObject
 from PySide2.QtGui import QPixmap, QIcon
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtWidgets import QSizePolicy, QMainWindow, QApplication, QLabel
-from multiprocessing import Pool
 
-import AlignmentReporter.Vizualisation as vis
 import AlignmentReporter.UI.Qt.AlignmentReporterRessources as ar_r
+import AlignmentReporter.Vizualisation as vis
+ar_r.qInitResources  # avoid import optimization removing the previous  line
 
 path = __file__.split("UI")[0]
 
-
-
 icon_path = os.path.join(path, "UI", "Qt")
-
 
 
 class settingWindow(QMainWindow):
@@ -489,7 +487,8 @@ class mainWindow(QMainWindow):
                 
                 self.savefig(f, min(self.data['sb_image_dpi'], 500), "png", q=6, t=True)
             self.centralWidget.l_image.setPixmap(
-                QPixmap(f).scaled(np.array(self.centralWidget.l_image.size()) * 1, mode=Qt.SmoothTransformation,
+                QPixmap(f).scaled(
+                    np.array(self.centralWidget.l_image.size()) * 1, mode=Qt.SmoothTransformation,
                     aspectMode=Qt.KeepAspectRatio))
         except KeyError:
             pass
@@ -565,7 +564,7 @@ class mainWindow(QMainWindow):
             data["hs_legend_v_offset"] = ww.hs_legend_v_offset.value()
             data["hs_legend_stretch"] = ww.hs_legend_stretch.value()
             data["hs_scale"] = ww.hs_scale.value()
-
+            
             data["le_party_color"] = w.le_party_color.placeholderText()
             data["le_party_name"] = w.le_party_name.placeholderText()
             
@@ -625,7 +624,6 @@ class mainWindow(QMainWindow):
             
             ww.hs_current_scale.setValue(self.data["hs_current_scale"])
             
-
             w.le_party_color.setPlaceholderText(self.data["le_party_color"])
             w.le_party_name.setPlaceholderText(self.data["le_party_name"])
             
@@ -689,7 +687,7 @@ class mainWindow(QMainWindow):
         except Exception:
             tr.print_exc()
         self.updateSignalBlock(False)
-        
+    
     def setColor(self, in_le):
         """
         Method that verifies if the given color value is valid, if so update QLabel placeholder value and change
@@ -706,7 +704,7 @@ class mainWindow(QMainWindow):
                         self.centralWidget.le_player_color.text().capitalize())
                     self.centralWidget.le_player_color.setText("")
                 self.centralWidget.le_player_entry.setFocus()
-            
+        
         elif in_le is self.centralWidget.le_party_color:
             if self.centralWidget.le_party_color.text().lower() in colors:
                 if self.centralWidget.le_party_color.text():
@@ -718,7 +716,7 @@ class mainWindow(QMainWindow):
     
     def setPlayerColor(self):
         self.setColor(self.centralWidget.le_player_color)
-        
+    
     def setPartyColor(self):
         self.setColor(self.centralWidget.le_party_color)
     
@@ -731,17 +729,19 @@ class mainWindow(QMainWindow):
                 self.centralWidget.le_player_name.setPlaceholderText(self.centralWidget.le_player_name.text())
                 self.centralWidget.le_player_name.setText("")
             self.centralWidget.le_player_color.setFocus()
-            
+        
         elif le_name is self.centralWidget.le_party_name:
             if self.centralWidget.le_party_name.text():
                 self.centralWidget.le_party_name.setPlaceholderText(self.centralWidget.le_party_name.text())
                 self.centralWidget.le_party_name.setText("")
             self.centralWidget.le_party_color.setFocus()
         self.update_data()
+    
+    def setPartyName(self):
+        self.setName(self.centralWidget.le_party_name)
         
     def setPlayerName(self):
         self.setName(self.centralWidget.le_player_name)
-        
     
     def setTitle(self):
         if self.centralWidget.le_image_title.text():
@@ -797,6 +797,9 @@ class mainWindow(QMainWindow):
                 player = players[player]
                 tasks += (max(0, data['sb_first_entry_weight'] - data['sb_rolling_window_size'])) * 2
                 tasks += (len(player["Entries"]) - 1) * 2
+            
+            tasks += (max(0, data['sb_first_entry_weight'] - data['sb_rolling_window_size'])) * 2 + 2
+            
             self.progressUpdate(True, 0, 10 + tasks + line_qual, 1, 0)
         try:
             self.centralWidget.pb_generate.setEnabled(False)
@@ -804,8 +807,6 @@ class mainWindow(QMainWindow):
             self.workers = list()
             
             worker = Worker((self.data.copy(), self.__Final, self.__TMP, self.__fontsize))
-            
-            
             
             worker.moveToThread(self.loop)
             
@@ -872,6 +873,57 @@ def compute_time(t):
     return p
 
 
+def timeit(func):
+    def inner(*args, **kwargs):
+        start = time.time()
+        result = func(*args, **kwargs)
+        print(func.__name__ + " " + str(round(time.time()-start, 4)))
+        return result
+    return inner
+
+
+
+# @timeit
+# @nb.jit(forceobj=True)
+# @nb.jit(nopython=True)
+def alignment_to_position(entries, first_entry_weight):
+    values = []
+    for i, old_value in enumerate(entries):
+        x = []
+        y = []
+        if len(old_value) == 2:
+            value = [old_value[0], old_value[1]] # jit forced manual list(str) conversion
+            if value[0] == "N":
+                value[0] = "T"
+        elif len(old_value) == 1:
+            value = [old_value[0]]
+            
+        for v in value:
+            if v == "L":
+                x.append(-1.)
+            elif v == "T":
+                x.append(0.)
+            elif v == "C":
+                x.append(1.)
+            elif v in ('G', 'B'):
+                y.append(1.)
+            elif v == "N":
+                y.append(0.)
+            elif v in ("E", 'M'):
+                y.append(-1.)
+        if len(x) > len(y):
+            for i in range(len(x) - len(y)):
+                y.append(np.nan)
+        elif len(y) > len(x):
+            for i in range(len(y) - len(x)):
+                x.append(np.nan)
+        if i == 0:
+            for i in range(0, max(0, first_entry_weight - 1)):
+                values += list(zip(x, y))
+        values += list(zip(x, y))
+    return values
+
+
 class myQLabel(QLabel):
     resized = Signal()
     
@@ -887,15 +939,16 @@ class myQLabel(QLabel):
         """
         self.resized.emit()
         super(myQLabel, self).resizeEvent(event)
-        
+
 
 class Worker(QObject):
     signal = Signal()
     finished = Signal()
+    
     def __init__(self, data, *args, **kwargs):
         super(Worker, self).__init__(*args, **kwargs)
         self.data = data
-        
+    
     @property
     def data(self):
         return self.__data, self.__final_file, self.__temp_file, self.__fontsize
@@ -904,7 +957,6 @@ class Worker(QObject):
     def data(self, data_list):
         self.__data, self.__final_file, self.__temp_file, self.__fontsize = data_list
     
-
     def generate_image(self):
         try:
             data, final_file, temp_file, fontsize = self.data
@@ -915,7 +967,7 @@ class Worker(QObject):
             line_qual = int(360 * (10 ** np.linspace(-0.5, 3.8, 100)[data["hs_line_quality"]]))
             
             vis.plot_background(n=line_qual, kwargs=BACKGROUND_KWARGS)
-            for i in range(line_qual): #Fixme: Maybe not do that
+            for i in range(line_qual):  # Fixme: Maybe not do that
                 self.signal.emit()
             t = data["le_image_title"] if data["chb_image_title"] else False
             alignment = 'left' if data["title_alignment"] == 0 else 'right' if data[
@@ -924,6 +976,16 @@ class Worker(QObject):
             pos_y = float(data["hs_legend_v_offset"] / 100.0) * 1.5
             pos_x = data["hs_legend_h_offset"] * 0.015
             stretch = float(data["hs_legend_stretch"] / 40.0)
+            
+            party = False
+            if data["gb_add_auto_party"]:
+                party = True
+                # party_start_align =
+            # "cob_party_starting_aligmnent": "Average",
+            # "rb_average": true,
+            # "le_party_name": "Party Name",
+            # "le_party_color": "Grey"
+            average = data["rb_average"]
             
             players_pos = np.array(
                 list(
@@ -935,41 +997,13 @@ class Worker(QObject):
                     color = player['Color']
                     
                     a = np.array(player["Entries"])
-                    values = list()
-                    for i, value in enumerate(a):
-                        x = []
-                        y = []
-                        if len(value) == 2:
-                            value = [c for c in value]
-                            value = ['T' if v == "N" and i == 0 else v for i, v in enumerate(value)]
-                        if len(value) == 1:
-                            value = [value]
-                        for v in value:
-                            if v == "L":
-                                x.append(-1)
-                            elif v == "T":
-                                x.append(0)
-                            elif v == "C":
-                                x.append(1)
-                            elif v in ('G', 'B'):
-                                y.append(1)
-                            elif v == "N":
-                                y.append(0)
-                            elif v in ("E", 'M'):
-                                y.append(-1)
-                        if len(x) > len(y):
-                            y += [np.nan] * (len(x) - len(y))
-                        elif len(y) > len(x):
-                            x += [np.nan] * (len(y) - len(x))
-                        if i == 0:
-                            for i in range(max(0, data['sb_first_entry_weight'] - 1)):
-                                values += list(zip(x, y))
-                        values += list(zip(x, y))
+                    
+                    values = alignment_to_position(entries=a, first_entry_weight=data["sb_first_entry_weight"])
+                    
                     df_player = pd.DataFrame(np.array(values), columns=['x', 'y']).fillna(np.array(values).mean())
                     mean_df_normal = df_player.fillna(value=df_player.mean()).rolling(
                         data["sb_rolling_window_size"], min_periods=1).mean().iloc[max(
-                        0, data[
-                               "sb_rolling_window_size"] - data["sb_first_entry_weight"]):, :]
+                        0, data["sb_rolling_window_size"] - data["sb_first_entry_weight"]):, :]
                     mean_df = vis.map_to_circle(mean_df_normal)
                     
                     mean_df["alpha"] = np.logspace(-0.5, 0, mean_df.shape[0])
@@ -1058,7 +1092,7 @@ class Worker(QObject):
         f = f if f else "png" if self.__data["image_format"] < 2 else "jpeg"
         t = t if t else True if self.__data["image_format"] == 1 else False
         q = round(np.linspace(0, 95, 12)[q - 1]) if q else \
-            round(np.linspace(0, 95, 12)[self.__data["hs_jpeg_qual"] -1])
+            round(np.linspace(0, 95, 12)[self.__data["hs_jpeg_qual"] - 1])
         plt.savefig(
             fname=out, dpi=dpi, format=f, transparent=t,
             pil_kwargs={'quality': int(round(q)), "metadata": metadata})
@@ -1098,7 +1132,6 @@ PLOT_KWARGS = {
 SCATTER_KWARGS = {
     "marker": 'o'
 }
-
 
 
 def launch():

@@ -273,6 +273,6 @@
   "gb_add_auto_party": true,
   "cob_party_starting_aligmnent": "Average",
   "rb_average": true,
-  "le_party_name": "Average",
+  "le_party_name": "Party Name",
   "le_party_color": "Grey"
 }
