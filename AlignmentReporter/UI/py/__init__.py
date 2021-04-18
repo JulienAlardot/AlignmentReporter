@@ -7,7 +7,7 @@ import time
 import traceback as tr
 
 import matplotlib.pyplot as plt
-import numba as nb
+# import numba as nb
 import numpy as np
 import pandas as pd
 from PySide2.QtCore import QFile, Qt, Signal, SIGNAL, SLOT, QThread, QObject
