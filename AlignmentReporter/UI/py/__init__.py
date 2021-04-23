@@ -592,7 +592,7 @@ class MainWindow(QMainWindow):
             data["gb_add_auto_party"] = c_widget.gb_add_auto_party.isChecked()
             data["le_party_color"] = c_widget.le_party_color.placeholderText()
             data["le_party_name"] = c_widget.le_party_name.placeholderText()
-            data["cob_party_starting_aligmnent"] = c_widget.cob_party_starting_aligmnent.currentText()
+            data["cob_party_starting_alignment"] = c_widget.cob_party_starting_alignment.currentText()
             data["rb_average"] = c_widget.rb_party_average.isChecked()
 
             data['out_path'] = os.path.realpath((s_c_widget.le_output_path.text())) \
@@ -679,8 +679,8 @@ class MainWindow(QMainWindow):
             c_widget.sb_rolling_window_size.setValue(self.data["sb_rolling_window_size"])
             c_widget.gb_add_auto_party.setChecked(self.data["gb_add_auto_party"])
 
-            c_widget.cob_party_starting_aligmnent.setCurrentIndex(c_widget.cob_party_starting_aligmnent.findText(
-                self.data["cob_party_starting_aligmnent"]))
+            c_widget.cob_party_starting_alignment.setCurrentIndex(c_widget.cob_party_starting_alignment.findText(
+                self.data["cob_party_starting_alignment"]))
 
             c_widget.rb_party_average.setChecked(self.data["rb_average"])
             c_widget.le_party_color.setPlaceholderText(self.data["le_party_color"])

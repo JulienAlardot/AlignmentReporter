@@ -271,7 +271,7 @@
   "title_alignment": 1,
   "out_path": "",
   "gb_add_auto_party": true,
-  "cob_party_starting_aligmnent": "Average",
+  "cob_party_starting_alignment": "Average",
   "rb_average": true,
   "le_party_name": "Party Name",
   "le_party_color": "Grey"

@@ -62,13 +62,13 @@ def timeit(func):
     return inner
 
 
-def alignment_to_position(entries, first_entry_weight):
+def alignment_to_position(entries, first_entry_weight=1):
     """
     Transform a given list of string alignment entries into positional entries. Apply a weight modifier to the first
     entry of the list
 
     :param entries: 1D-array of string entries like ('LG', 'NG', 'CG', ...)
-    :param first_entry_weight: Weight of the first entry of the "entries" parameter
+    :param first_entry_weight: (Optional) Weight of the first entry of the "entries" parameter
     :type entries: tuple or list or np.ndarray
     :return: List of positional values
     :rtype: tuple[tuple[float, float]]

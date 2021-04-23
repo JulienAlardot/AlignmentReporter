@@ -15,7 +15,7 @@ class DataDict(TypedDict):
     Main Data Dictionary template
     """
     chb_image_title: bool
-    cob_party_starting_aligmnent: str
+    cob_party_starting_alignment: str
     cob_players_select: int
     current_marker: int
     gb_add_auto_party: bool

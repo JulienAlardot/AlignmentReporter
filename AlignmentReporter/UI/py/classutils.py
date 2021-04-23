@@ -2,7 +2,7 @@ import math
 import os
 import time
 import traceback as tr
-from typing import Tuple, Dict
+from typing import Tuple, Dict, Callable, Union, List
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -102,17 +102,40 @@ class Worker(QObject):
             party = False
             if data["gb_add_auto_party"]:
                 party = True
-                # party_start_align =
+                party_pos_list: Union[Tuple[float, float], List[float, float]] = list()
 
-            # "cob_party_starting_aligmnent": "Average",
+                if data['cob_party_starting_alignment'] != "Average":
+                    party_pos_list += alignment_to_position([data['cob_party_starting_alignment']],
+                    data["sb_first_entry_weight"])
+
+                else:
+                    first_pos_list: List[np.ndarray] = list()
+                    for v in players.values():
+                        first_pos_list += v["Entries"][0]
+                    first_pos: np.ndarray = np.array(first_pos_list).mean(axis=1)
+
+                    for i in range(data["sb_first_entry_weight"]):
+                        first_pos_list.append(first_pos)
+
+
+
+
+
+
+
+
+                party_func: Callable = np.mean if data["rb_average"] else np.sum
+
+                party_name: str = data["le_party_name"]
+                le_party_color: str = data['le_party_color']
+
+            # "cob_party_starting_alignment": "Average",
             # "rb_average": true,
             # "le_party_name": "Party Name",
             # "le_party_color": "Grey"
-            average: bool = data["rb_average"]
 
             players_pos: np.ndarray = np.array(list(zip(np.linspace(pos_x, pos_x, len(players)),
-                                                        np.linspace(pos_y, (pos_y - (stretch * len(players))),
-                                                                    len(players)))))
+                np.linspace(pos_y, (pos_y - (stretch * len(players))), len(players)))))
 
             for player, pos in zip(players.values(), players_pos):
                 if len(player["Entries"]) > 0:
@@ -120,8 +143,7 @@ class Worker(QObject):
                     a: np.ndarray = np.array(player["Entries"])
 
                     values: Tuple[Tuple[float, float]] = alignment_to_position(entries=a,
-                                                                               first_entry_weight=data[
-                                                                                   "sb_first_entry_weight"])
+                        first_entry_weight=data["sb_first_entry_weight"])
 
                     df_player = pd.DataFrame(np.array(values), columns=['x', 'y']).fillna(np.array(values).mean())
 
