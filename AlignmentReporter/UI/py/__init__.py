@@ -5,7 +5,7 @@ import sys
 import time
 import traceback as tr
 from typing import List, Dict
-from default_parameters import BACKGROUND_KWARGS, METADATA
+
 import matplotlib.pyplot as plt
 import numpy as np
 from PySide2.QtCore import QFile, Qt, Signal, SIGNAL, SLOT, QThread
@@ -15,9 +15,10 @@ from PySide2.QtWidgets import QSizePolicy, QMainWindow, QApplication, QLabel, QW
 
 import AlignmentReporter.UI.Qt.AlignmentReporterRessources as ar_r
 import AlignmentReporter.Vizualisation as vis
-from classutils import MyQLabel, Worker
-from funcutils import timeit, compute_time, alignment_to_position
-from typed_dict import DataDict, PlayerDict
+from AlignmentReporter.UI.py.default_parameters import BACKGROUND_KWARGS, METADATA
+from AlignmentReporter.UI.py.classutils import MyQLabel, Worker
+from AlignmentReporter.UI.py.funcutils import timeit, compute_time, alignment_to_position
+from AlignmentReporter.UI.py.typed_dict import DataDict, PlayerDict
 
 ar_r.qInitResources  # avoid import optimization removing the previous  line
 
@@ -134,7 +135,7 @@ class MainWindow(QMainWindow):
         self.mutate_widget(self.centralWidget.l_image)
         self.centralWidget.f_progress_bar.hide()
         self.centralWidget.prb_preview.setValue(0)
-        self.centralWidget.l_image.resized.connect(self.resizeImage)
+        self.centralWidget.l_image.resized.connect(self.resize_image)
         self.centralWidget.cob_players_select.setFocus()
 
         group = (
@@ -749,7 +750,7 @@ class MainWindow(QMainWindow):
             self.current_player_data = self.data["player"] if "player" in self.data.keys() else None
 
             if first_call:
-                self.updatePlayer()
+                self.update_player()
         except KeyError:
             pass
         except Exception:
@@ -899,7 +900,7 @@ class MainWindow(QMainWindow):
                 tasks += (len(player["Entries"]) - 1) * 2
 
             tasks += (max(0, data['sb_first_entry_weight'] - data['sb_rolling_window_size'])) * 2 + 2
-            self.progressUpdate(True, 0, 10 + tasks + line_qual, 1, 0)
+            self.progress_update(True, 0, 10 + tasks + line_qual, 1, 0)
 
         try:
             self.centralWidget.pb_generate.setEnabled(False)

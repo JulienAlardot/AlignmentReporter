@@ -11,10 +11,9 @@ from PySide2.QtCore import Signal, QObject
 from PySide2.QtWidgets import QLabel
 
 import AlignmentReporter.Vizualisation as vis
-from default_parameters import BACKGROUND_KWARGS, PLOT_KWARGS, METADATA
-from funcutils import alignment_to_position
-from funcutils import compute_time
-from typed_dict import DataDict
+from AlignmentReporter.UI.py.default_parameters import BACKGROUND_KWARGS, PLOT_KWARGS, METADATA
+from AlignmentReporter.UI.py.funcutils import alignment_to_position,compute_time
+from AlignmentReporter.UI.py.typed_dict import DataDict
 
 
 class MyQLabel(QLabel):
@@ -231,5 +230,5 @@ class Worker(QObject):
         quality = round(np.linspace(0, 95, 12)[quality - 1]) if quality else \
             round(np.linspace(0, 95, 12)[self.__data["hs_jpeg_qual"] - 1])
         plt.savefig(fname=out, dpi=dpi, format=f_format, transparent=transparency,
-            pil_kwargs={'quality': int(round(quality)), "metadata": metadata})
+                    pil_kwargs={'quality': int(round(quality)), "metadata": metadata})
         self.finished.emit()
