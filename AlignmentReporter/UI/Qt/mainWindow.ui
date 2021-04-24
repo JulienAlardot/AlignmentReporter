@@ -350,7 +350,7 @@
              <number>5</number>
             </property>
             <item row="0" column="0">
-             <widget class="QLabel" name="l_party_starting_aligmnent">
+             <widget class="QLabel" name="l_party_starting_alignment">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
                 <horstretch>0</horstretch>
@@ -363,7 +363,7 @@
              </widget>
             </item>
             <item row="0" column="1">
-             <widget class="QComboBox" name="cob_party_starting_aligmnent">
+             <widget class="QComboBox" name="cob_party_starting_alignment">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                 <horstretch>0</horstretch>
