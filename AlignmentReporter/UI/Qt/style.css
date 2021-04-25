@@ -60,6 +60,7 @@ QGroupBox::title{
     subcontrol-origin: margin;
     subcontrol-position: top center;
     border-color: #4E4E57;
+    background-color: transparent;
 }
 QScrollArea{
     border-style: none;
