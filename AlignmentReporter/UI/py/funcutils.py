@@ -1,5 +1,5 @@
 import time
-from typing import List
+from typing import List, Tuple
 
 import numpy as np
 
@@ -71,9 +71,9 @@ def alignment_to_position(entries, first_entry_weight=1):
     :param first_entry_weight: (Optional) Weight of the first entry of the "entries" parameter
     :type entries: tuple or list or np.ndarray
     :return: List of positional values
-    :rtype: tuple[tuple[float, float]]
+    :rtype: Tuple[Tuple[float, float]]
     """
-    values: List[List[float, float]] = []
+    values: List[Tuple[float, float]] = []
     value: List[str] = list()
     for i, old_value in enumerate(entries):
         x = []
