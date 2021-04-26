@@ -112,16 +112,14 @@ class Worker(QObject):
 
             players_values: List[PlayerDict] = list(players.values())
 
-            party = False
             if data["gb_add_auto_party"]:
-                party = True
                 party_pos_list: Union[Tuple[float, float], List[float, float]] = list()
 
                 if data["cob_party_starting_alignment"] != "Average":
                     first_pos: np.array = np.array(
-                        alignment_to_position(
+                        *alignment_to_position(
                             [data["cob_party_starting_alignment"]],
-                            data["sb_first_entry_weight"],
+                            1,
                         )
                     )
 
@@ -158,14 +156,13 @@ class Worker(QObject):
 
                 for i, array in enumerate(party_all_entries):
                     party_array_values[: len_entries[i], i, :] = np.array(array)
-
                 party_align_values = np.concatenate(
                     (first_pos_list, party_func(party_array_values, axis=1)), axis=0
                 )
 
                 party_player: Dict[str, Union[np.ndarray, str]] = {
-                    "Entries": party_align_values,
                     "Color": party_color,
+                    "Entries": party_align_values,
                     "Name": party_name,
                 }
                 players_values.append(party_player)
@@ -173,8 +170,12 @@ class Worker(QObject):
             players_pos: np.ndarray = np.array(
                 list(
                     zip(
-                        np.linspace(pos_x, pos_x, len(players)),
-                        np.linspace(pos_y, (pos_y - (stretch * len(players))), len(players)),
+                        np.linspace(pos_x, pos_x, len(players_values)),
+                        np.linspace(
+                            pos_y,
+                            (pos_y - (stretch * len(players_values))),
+                            len(players_values),
+                        ),
                     )
                 )
             )
@@ -182,11 +183,13 @@ class Worker(QObject):
             for player, pos in zip(players_values, players_pos):
                 if len(player["Entries"]) > 0:
                     color: str = player["Color"]
-                    a: np.ndarray = np.array(player["Entries"])
-
-                    values: Tuple[Tuple[float, float]] = alignment_to_position(
-                        entries=a, first_entry_weight=data["sb_first_entry_weight"]
-                    )
+                    if player is not players_values[-1]:
+                        a: np.ndarray = np.array(player["Entries"])
+                        values: Tuple[Tuple[float, float]] = alignment_to_position(
+                            entries=a, first_entry_weight=data["sb_first_entry_weight"]
+                        )
+                    else:
+                        values: Tuple[Tuple[float, float]] = player["Entries"]
 
                     df_player = pd.DataFrame(
                         np.array(values), columns=["x", "y"]
@@ -384,4 +387,7 @@ class Worker(QObject):
             transparent=transparency,
             pil_kwargs={"quality": int(round(quality)), "metadata": metadata},
         )
-        self.finished.emit()
+        try:
+            self.finished.emit()
+        except RuntimeError:
+            pass  # Worker already deleted

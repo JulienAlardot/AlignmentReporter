@@ -483,7 +483,7 @@
                <item>
                 <widget class="QRadioButton" name="rb_party_average">
                  <property name="text">
-                  <string>Average of player</string>
+                  <string>Players' Average</string>
                  </property>
                  <property name="checked">
                   <bool>true</bool>
