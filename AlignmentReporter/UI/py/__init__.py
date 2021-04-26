@@ -110,7 +110,7 @@ class MainWindow(QMainWindow):
             QIcon(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'AlignmentTool.ico')))
         self.settingsUI: SettingWindow = SettingWindow(self)
 
-        self.setWindowTitle("Party Setup")
+        self.setWindowTitle("Alignment Reporter v2.0.0")
         self.settingsUI.setWindowTitle("Image Settings")
         self.__save = savefile
         self.assignWidgets()

@@ -12,7 +12,7 @@ from PySide2.QtWidgets import QLabel
 
 import AlignmentReporter.Vizualisation as vis
 from AlignmentReporter.UI.py.default_parameters import BACKGROUND_KWARGS, PLOT_KWARGS, METADATA
-from AlignmentReporter.UI.py.funcutils import alignment_to_position,compute_time
+from AlignmentReporter.UI.py.funcutils import alignment_to_position, compute_time
 from AlignmentReporter.UI.py.typed_dict import DataDict
 
 
@@ -106,28 +106,44 @@ class Worker(QObject):
 
                 if data['cob_party_starting_alignment'] != "Average":
                     party_pos_list += alignment_to_position([data['cob_party_starting_alignment']],
-                    data["sb_first_entry_weight"])
+                                                            data["sb_first_entry_weight"])
 
                 else:
                     first_pos_list: List[np.ndarray] = list()
+
                     for v in players.values():
-                        first_pos_list += v["Entries"][0]
-                    first_pos: np.ndarray = np.array(first_pos_list).mean(axis=1)
+                        first_pos_list += alignment_to_position([v["Entries"][0]])
 
-                    for i in range(data["sb_first_entry_weight"]):
-                        first_pos_list.append(first_pos)
-
-
-
-
-
-
-
+                    first_pos: np.ndarray = np.array(first_pos_list).mean(axis=0)
+                first_pos_list = list()
+                for i in range(data["sb_first_entry_weight"]):
+                    first_pos_list.append(first_pos)
 
                 party_func: Callable = np.mean if data["rb_average"] else np.sum
-
                 party_name: str = data["le_party_name"]
                 le_party_color: str = data['le_party_color']
+
+                party_all_entries: Union[np.ndarray, List[Tuple[Tuple[float, float]]]] = list()
+                len_entries: Union[List[int], Tuple[int]] = list()
+
+                for player in players.values():
+                    party_all_entries.append(alignment_to_position(player["Entries"][1:]))
+                    len_entries.append(len(party_all_entries[-1]))
+
+                party_array_values: np.ndarray = np.zeros((max(len_entries), len(players.values()), 2))
+                party_array_values[:, :, :] = 0.
+
+                for i, array in enumerate(party_all_entries):
+                    party_array_values[:len_entries[i], i, :] = np.array(array)
+
+                print(first_pos_list)
+                party_align_values = np.concatenate((first_pos_list, party_func(party_array_values, axis=1)), axis=0)
+
+                print(party_align_values)
+
+                # party_real_entries
+                # i=0
+                # while min(i, *len_entries) is i:
 
             # "cob_party_starting_alignment": "Average",
             # "rb_average": true,
@@ -135,15 +151,16 @@ class Worker(QObject):
             # "le_party_color": "Grey"
 
             players_pos: np.ndarray = np.array(list(zip(np.linspace(pos_x, pos_x, len(players)),
-                np.linspace(pos_y, (pos_y - (stretch * len(players))), len(players)))))
+                                                        np.linspace(pos_y, (pos_y - (stretch * len(players))),
+                                                                    len(players)))))
 
             for player, pos in zip(players.values(), players_pos):
                 if len(player["Entries"]) > 0:
                     color: str = player['Color']
                     a: np.ndarray = np.array(player["Entries"])
 
-                    values: Tuple[Tuple[float, float]] = alignment_to_position(entries=a,
-                        first_entry_weight=data["sb_first_entry_weight"])
+                    values: Tuple[Tuple[float, float]] = \
+                        alignment_to_position(entries=a, first_entry_weight=data["sb_first_entry_weight"])
 
                     df_player = pd.DataFrame(np.array(values), columns=['x', 'y']).fillna(np.array(values).mean())
 
@@ -211,7 +228,7 @@ class Worker(QObject):
                 'party_players_alignment'
             new_title: str = ''
             for c in title:
-                if 'azertyuiopqsdfghjklmwxcvbn123456789_-'.find(c) != -1:
+                if '-123456789_abcdefghijklmnopqrstuvwxyz'.find(c) != -1:
                     new_title += c
                 else:
                     new_title += '_'
