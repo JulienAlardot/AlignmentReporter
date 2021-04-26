@@ -11,9 +11,13 @@ from PySide2.QtCore import Signal, QObject
 from PySide2.QtWidgets import QLabel
 
 import AlignmentReporter.Vizualisation as vis
-from AlignmentReporter.UI.py.default_parameters import BACKGROUND_KWARGS, PLOT_KWARGS, METADATA
+from AlignmentReporter.UI.py.default_parameters import (
+    BACKGROUND_KWARGS,
+    PLOT_KWARGS,
+    METADATA,
+)
 from AlignmentReporter.UI.py.funcutils import alignment_to_position, compute_time
-from AlignmentReporter.UI.py.typed_dict import DataDict
+from AlignmentReporter.UI.py.typed_dict import DataDict, PlayerDict
 
 
 class MyQLabel(QLabel):
@@ -76,15 +80,17 @@ class Worker(QObject):
             temp_file: str = self.__temp_file
             fontsize: int = self.__fontsize
 
-            al: Tuple[Tuple[str, str, str], Tuple[str, str, str], Tuple[str, str, str]] = ('LG', 'NG', 'CG'), \
-                                                                                          ('LN', 'TN', 'CN'), \
-                                                                                          ('LE', 'NE', 'CE')
+            al: Tuple[
+                Tuple[str, str, str], Tuple[str, str, str], Tuple[str, str, str]
+            ] = (("LG", "NG", "CG"), ("LN", "TN", "CN"), ("LE", "NE", "CE"))
 
             plt.close()
 
             t_start = time.time()
-            players = data['players']
-            line_qual = int(360 * (10 ** np.linspace(-0.5, 3.8, 100)[data["hs_line_quality"]]))
+            players = data["players"]
+            line_qual = int(
+                360 * (10 ** np.linspace(-0.5, 3.8, 100)[data["hs_line_quality"]])
+            )
             vis.plot_background(n=line_qual, kwargs=BACKGROUND_KWARGS)
 
             for i in range(line_qual):  # Fixme: Maybe not do that
@@ -92,21 +98,32 @@ class Worker(QObject):
 
             t = data["le_image_title"] if data["chb_image_title"] else False
 
-            alignment = 'left' if data["title_alignment"] == 0 else 'right' \
-                if data["title_alignment"] == 2 else "center"
+            alignment = (
+                "left"
+                if data["title_alignment"] == 0
+                else "right"
+                if data["title_alignment"] == 2
+                else "center"
+            )
 
             pos_y = float(data["hs_legend_v_offset"] / 100.0) * 1.5
             pos_x = data["hs_legend_h_offset"] * 0.015
             stretch = float(data["hs_legend_stretch"] / 40.0)
+
+            players_values: List[PlayerDict] = list(players.values())
 
             party = False
             if data["gb_add_auto_party"]:
                 party = True
                 party_pos_list: Union[Tuple[float, float], List[float, float]] = list()
 
-                if data['cob_party_starting_alignment'] != "Average":
-                    party_pos_list += alignment_to_position([data['cob_party_starting_alignment']],
-                                                            data["sb_first_entry_weight"])
+                if data["cob_party_starting_alignment"] != "Average":
+                    first_pos: np.array = np.array(
+                        alignment_to_position(
+                            [data["cob_party_starting_alignment"]],
+                            data["sb_first_entry_weight"],
+                        )
+                    )
 
                 else:
                     first_pos_list: List[np.ndarray] = list()
@@ -121,95 +138,153 @@ class Worker(QObject):
 
                 party_func: Callable = np.mean if data["rb_average"] else np.sum
                 party_name: str = data["le_party_name"]
-                le_party_color: str = data['le_party_color']
+                party_color: str = data["le_party_color"]
 
-                party_all_entries: Union[np.ndarray, List[Tuple[Tuple[float, float]]]] = list()
+                party_all_entries: Union[
+                    np.ndarray, List[Tuple[Tuple[float, float]]]
+                ] = list()
                 len_entries: Union[List[int], Tuple[int]] = list()
 
                 for player in players.values():
-                    party_all_entries.append(alignment_to_position(player["Entries"][1:]))
+                    party_all_entries.append(
+                        alignment_to_position(player["Entries"][1:])
+                    )
                     len_entries.append(len(party_all_entries[-1]))
 
-                party_array_values: np.ndarray = np.zeros((max(len_entries), len(players.values()), 2))
-                party_array_values[:, :, :] = 0.
+                party_array_values: np.ndarray = np.zeros(
+                    (max(len_entries), len(players.values()), 2)
+                )
+                party_array_values[:, :, :] = 0.0
 
                 for i, array in enumerate(party_all_entries):
-                    party_array_values[:len_entries[i], i, :] = np.array(array)
+                    party_array_values[: len_entries[i], i, :] = np.array(array)
 
-                print(first_pos_list)
-                party_align_values = np.concatenate((first_pos_list, party_func(party_array_values, axis=1)), axis=0)
+                party_align_values = np.concatenate(
+                    (first_pos_list, party_func(party_array_values, axis=1)), axis=0
+                )
 
-                print(party_align_values)
+                party_player: Dict[str, Union[np.ndarray, str]] = {
+                    "Entries": party_align_values,
+                    "Color": party_color,
+                    "Name": party_name,
+                }
+                players_values.append(party_player)
 
-                # party_real_entries
-                # i=0
-                # while min(i, *len_entries) is i:
+            players_pos: np.ndarray = np.array(
+                list(
+                    zip(
+                        np.linspace(pos_x, pos_x, len(players)),
+                        np.linspace(pos_y, (pos_y - (stretch * len(players))), len(players)),
+                    )
+                )
+            )
 
-            # "cob_party_starting_alignment": "Average",
-            # "rb_average": true,
-            # "le_party_name": "Party Name",
-            # "le_party_color": "Grey"
-
-            players_pos: np.ndarray = np.array(list(zip(np.linspace(pos_x, pos_x, len(players)),
-                                                        np.linspace(pos_y, (pos_y - (stretch * len(players))),
-                                                                    len(players)))))
-
-            for player, pos in zip(players.values(), players_pos):
+            for player, pos in zip(players_values, players_pos):
                 if len(player["Entries"]) > 0:
-                    color: str = player['Color']
+                    color: str = player["Color"]
                     a: np.ndarray = np.array(player["Entries"])
 
-                    values: Tuple[Tuple[float, float]] = \
-                        alignment_to_position(entries=a, first_entry_weight=data["sb_first_entry_weight"])
+                    values: Tuple[Tuple[float, float]] = alignment_to_position(
+                        entries=a, first_entry_weight=data["sb_first_entry_weight"]
+                    )
 
-                    df_player = pd.DataFrame(np.array(values), columns=['x', 'y']).fillna(np.array(values).mean())
+                    df_player = pd.DataFrame(
+                        np.array(values), columns=["x", "y"]
+                    ).fillna(np.array(values).mean())
 
-                    mean_df_normal = df_player.fillna(value=df_player.mean()).rolling(data["sb_rolling_window_size"],
-                                                                                      min_periods=1).mean().iloc[
-                                     max(0, data["sb_rolling_window_size"] -
-                                         data["sb_first_entry_weight"]):, :]
+                    mean_df_normal = (
+                        df_player.fillna(value=df_player.mean())
+                        .rolling(data["sb_rolling_window_size"], min_periods=1)
+                        .mean()
+                        .iloc[
+                            max(
+                                0,
+                                data["sb_rolling_window_size"]
+                                - data["sb_first_entry_weight"],
+                            ) :,
+                            :,
+                        ]
+                    )
 
                     mean_df = vis.map_to_circle(mean_df_normal)
                     mean_df["alpha"] = np.logspace(-0.5, 0, mean_df.shape[0])
 
-                    ha = 'left' if data['legend_text_alignment'] == 0 else "center" if data['legend_text_alignment'] \
-                                                                                       == 1 else 'right'
+                    ha = (
+                        "left"
+                        if data["legend_text_alignment"] == 0
+                        else "center"
+                        if data["legend_text_alignment"] == 1
+                        else "right"
+                    )
 
-                    s = np.logspace(-1.2, 1.5, mean_df.shape[0]) * math.sqrt((data["hs_scale"]) / 100.0)
-                    plt.plot(mean_df['x'], mean_df['y'], color=color, **PLOT_KWARGS)
+                    s = np.logspace(-1.2, 1.5, mean_df.shape[0]) * math.sqrt(
+                        (data["hs_scale"]) / 100.0
+                    )
+                    plt.plot(mean_df["x"], mean_df["y"], color=color, **PLOT_KWARGS)
                     self.signal.emit()
 
-                    prev_markers: Tuple = ("o", "x", '*', "+", "<", "^", ">", "v", '', '$' +
-                                           data['le_previous_custom'] + '$')
+                    prev_markers: Tuple = (
+                        "o",
+                        "x",
+                        "*",
+                        "+",
+                        "<",
+                        "^",
+                        ">",
+                        "v",
+                        "",
+                        "$" + data["le_previous_custom"] + "$",
+                    )
 
-                    last_markers: Tuple = ("o", "x", '*', "+", "<", "^", ">", "v", '', '$' +
-                                           data['le_current_custom'] + '$')
+                    last_markers: Tuple = (
+                        "o",
+                        "x",
+                        "*",
+                        "+",
+                        "<",
+                        "^",
+                        ">",
+                        "v",
+                        "",
+                        "$" + data["le_current_custom"] + "$",
+                    )
 
-                    kwargs: Dict[str, str] = {"marker": prev_markers[data["previous_marker"]]}
+                    kwargs: Dict[str, str] = {
+                        "marker": prev_markers[data["previous_marker"]]
+                    }
 
                     for i in range(mean_df.shape[0]):
                         if i == mean_df.shape[0] - 1:
-                            kwargs['marker']: str = last_markers[data["current_marker"]]
+                            kwargs["marker"]: str = last_markers[data["current_marker"]]
 
                         row: pd.DataFrame = pd.DataFrame(mean_df.iloc[i, :]).transpose()
 
-                        for alpha, scale in zip(np.linspace(row['alpha'].values[-1], 0.0, 10) ** 8,
-                                                np.linspace(s[i], s[i] * 1.1, 4)):
+                        for alpha, scale in zip(
+                            np.linspace(row["alpha"].values[-1], 0.0, 10) ** 8,
+                            np.linspace(s[i], s[i] * 1.1, 4),
+                        ):
 
-                            kwargs['alpha']: float = alpha
-                            kwargs['s']: float = scale
+                            kwargs["alpha"]: float = alpha
+                            kwargs["s"]: float = scale
 
                             if i == mean_df.shape[0] - 1:
-                                kwargs['marker']: str = last_markers[data["current_marker"]]
-                                kwargs['s']: float = scale * data["hs_current_scale"] / 10.0
+                                kwargs["marker"]: str = last_markers[
+                                    data["current_marker"]
+                                ]
+                                kwargs["s"]: float = (
+                                    scale * data["hs_current_scale"] / 10.0
+                                )
 
-                            plt.scatter(data=row, x='x', y='y', color=color, **kwargs)
+                            plt.scatter(data=row, x="x", y="y", color=color, **kwargs)
 
                         self.signal.emit()
 
-                    first_row: pd.DataFrame = pd.DataFrame(mean_df_normal.iloc[0, :]).transpose()
+                    first_row: pd.DataFrame = pd.DataFrame(
+                        mean_df_normal.iloc[0, :]
+                    ).transpose()
                     last_row: pd.DataFrame = pd.DataFrame(
-                        mean_df_normal.iloc[mean_df_normal.shape[0] - 1, :]).transpose()
+                        mean_df_normal.iloc[mean_df_normal.shape[0] - 1, :]
+                    ).transpose()
 
                     y: int = int(round(1 - first_row["y"]))
                     x: int = int(round(first_row["x"] + 1))
@@ -218,26 +293,41 @@ class Worker(QObject):
                     p_o_al: Tuple[float, float] = al[y][x]
                     p_al: Tuple[float, float] = al[y_o][x_o]
 
-                    plt.annotate(player["Name"] + ":\n{} -> {}".format(p_o_al, p_al), xy=pos, color=color, ha=ha,
-                                 va='center', fontsize=fontsize, fontweight='semibold')
+                    plt.annotate(
+                        player["Name"] + ":\n{} -> {}".format(p_o_al, p_al),
+                        xy=pos,
+                        color=color,
+                        ha=ha,
+                        va="center",
+                        fontsize=fontsize,
+                        fontweight="semibold",
+                    )
 
-            vis.plot_foreground(tight=False, kwargs={'title': t, 'alignment': alignment, 'fontsize': fontsize * 1.1})
+            vis.plot_foreground(
+                tight=False,
+                kwargs={"title": t, "alignment": alignment, "fontsize": fontsize * 1.1},
+            )
             self.signal.emit()
             print(compute_time(time.time() - t_start))
-            title: str = data['le_image_title'].replace(' ', '_').lower() if data['chb_image_title'] else \
-                'party_players_alignment'
-            new_title: str = ''
+            title: str = (
+                data["le_image_title"].replace(" ", "_").lower()
+                if data["chb_image_title"]
+                else "party_players_alignment"
+            )
+            new_title: str = ""
             for c in title:
-                if '-123456789_abcdefghijklmnopqrstuvwxyz'.find(c) != -1:
+                if "-123456789_abcdefghijklmnopqrstuvwxyz".find(c) != -1:
                     new_title += c
                 else:
-                    new_title += '_'
+                    new_title += "_"
             title: str = new_title
-            ext: str = ".png" if data['image_format'] < 2 else '.jpg'
+            ext: str = ".png" if data["image_format"] < 2 else ".jpg"
             f_path = os.path.join(final_file, title + ext)
-            print('Starting saving data')
-            im_size: int = min(data['sb_image_dpi'], 720)
-            self.savefig(temp_file, im_size, f_format='png', quality=6, transparency=True)
+            print("Starting saving data")
+            im_size: int = min(data["sb_image_dpi"], 720)
+            self.savefig(
+                temp_file, im_size, f_format="png", quality=6, transparency=True
+            )
             self.signal.emit()
             self.savefig(f_path)
 
@@ -263,11 +353,35 @@ class Worker(QObject):
         """
         metadata: Dict[str, str] = METADATA
         metadata["Creation Time"]: str = time.ctime()
-        dpi: float = size / (72 / 100 * 5.) if size else self.__data["sb_image_dpi"] / (72 / 100 * 5.)
-        f_format = f_format if f_format else "png" if self.__data["image_format"] < 2 else "jpeg"
-        transparency = transparency if transparency else True if self.__data["image_format"] == 1 else False
-        quality = round(np.linspace(0, 95, 12)[quality - 1]) if quality else \
-            round(np.linspace(0, 95, 12)[self.__data["hs_jpeg_qual"] - 1])
-        plt.savefig(fname=out, dpi=dpi, format=f_format, transparent=transparency,
-                    pil_kwargs={'quality': int(round(quality)), "metadata": metadata})
+        dpi: float = (
+            size / (72 / 100 * 5.0)
+            if size
+            else self.__data["sb_image_dpi"] / (72 / 100 * 5.0)
+        )
+        f_format = (
+            f_format
+            if f_format
+            else "png"
+            if self.__data["image_format"] < 2
+            else "jpeg"
+        )
+        transparency = (
+            transparency
+            if transparency
+            else True
+            if self.__data["image_format"] == 1
+            else False
+        )
+        quality = (
+            round(np.linspace(0, 95, 12)[quality - 1])
+            if quality
+            else round(np.linspace(0, 95, 12)[self.__data["hs_jpeg_qual"] - 1])
+        )
+        plt.savefig(
+            fname=out,
+            dpi=dpi,
+            format=f_format,
+            transparent=transparency,
+            pil_kwargs={"quality": int(round(quality)), "metadata": metadata},
+        )
         self.finished.emit()

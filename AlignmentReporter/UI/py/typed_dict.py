@@ -5,6 +5,7 @@ class PlayerDict(TypedDict):
     """
     Player Data Dictionary template
     """
+
     Color: str
     Entries: List[str]
     Name: str
@@ -14,6 +15,7 @@ class DataDict(TypedDict):
     """
     Main Data Dictionary template
     """
+
     chb_image_title: bool
     cob_party_starting_alignment: str
     cob_players_select: int

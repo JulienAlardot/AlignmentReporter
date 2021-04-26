@@ -11,13 +11,26 @@ import numpy as np
 from PySide2.QtCore import QFile, Qt, Signal, SIGNAL, SLOT, QThread
 from PySide2.QtGui import QPixmap, QIcon
 from PySide2.QtUiTools import QUiLoader
-from PySide2.QtWidgets import QSizePolicy, QMainWindow, QApplication, QLabel, QWidget, QLayout, QStyle, QLineEdit
+from PySide2.QtWidgets import (
+    QSizePolicy,
+    QMainWindow,
+    QApplication,
+    QLabel,
+    QWidget,
+    QLayout,
+    QStyle,
+    QLineEdit,
+)
 
 import AlignmentReporter.UI.Qt.AlignmentReporterRessources as ar_r
 import AlignmentReporter.Vizualisation as vis
 from AlignmentReporter.UI.py.default_parameters import BACKGROUND_KWARGS, METADATA
 from AlignmentReporter.UI.py.classutils import MyQLabel, Worker
-from AlignmentReporter.UI.py.funcutils import timeit, compute_time, alignment_to_position
+from AlignmentReporter.UI.py.funcutils import (
+    timeit,
+    compute_time,
+    alignment_to_position,
+)
 from AlignmentReporter.UI.py.typed_dict import DataDict, PlayerDict
 
 ar_r.qInitResources  # avoid import optimization removing the previous  line
@@ -52,8 +65,14 @@ class SettingWindow(QMainWindow):
         self.setStyleSheet(_style_sheet)
         self.assignWidgets()
         self.setWindowFlags(Qt.Window)
-        self.setWindowIcon(QIcon(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
-                                              'AlignmentTool.ico')))
+        self.setWindowIcon(
+            QIcon(
+                os.path.join(
+                    os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
+                    "AlignmentTool.ico",
+                )
+            )
+        )
         # Plugin setup
 
         # Custom variables
@@ -81,7 +100,7 @@ class SettingWindow(QMainWindow):
     ####################################################################################################################
     @staticmethod
     def print_click():
-        """"
+        """ "
         PLACEHOLDER FUNCTION
         """
         print("Button clicked")
@@ -107,7 +126,13 @@ class MainWindow(QMainWindow):
         ui_file.close()
 
         self.setWindowIcon(
-            QIcon(os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'AlignmentTool.ico')))
+            QIcon(
+                os.path.join(
+                    os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
+                    "AlignmentTool.ico",
+                )
+            )
+        )
         self.settingsUI: SettingWindow = SettingWindow(self)
 
         self.setWindowTitle("Alignment Reporter v2.0.0")
@@ -124,7 +149,9 @@ class MainWindow(QMainWindow):
         self.savefile_json: str = os.path.join(self.datapath, self.__save + ".json")
         self.data = dict()
         self.__TMP: str = os.path.join(self.datapath, "TMP.pkl")
-        self.__Final: str = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "out")
+        self.__Final: str = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "out"
+        )
         self.__player_data: dict = dict()
         self.__fontsize: int = 8
         self.finished: bool = True
@@ -148,7 +175,9 @@ class MainWindow(QMainWindow):
             self.centralWidget.line_7,
         )
         for widget in group:
-            widget.setProperty("holder", True)  # Stylesheet property for holding widgets
+            widget.setProperty(
+                "holder", True
+            )  # Stylesheet property for holding widgets
         # Custom functions calls
         self.show()
 
@@ -168,10 +197,14 @@ class MainWindow(QMainWindow):
         self.centralWidget.pb_set_title.released.connect(self.set_title)
         self.centralWidget.pb_add_player_entry.released.connect(self.add_entry)
         self.centralWidget.pb_delete_player_entry.released.connect(self.del_entry)
-        self.centralWidget.pb_delete_player_all_entries.released.connect(self.clear_entries)
+        self.centralWidget.pb_delete_player_all_entries.released.connect(
+            self.clear_entries
+        )
         self.centralWidget.pb_save_player.released.connect(self.save_player)
         self.centralWidget.pb_del_player.released.connect(self.del_player)
-        self.centralWidget.cob_players_select.currentIndexChanged.connect(self.update_player)
+        self.centralWidget.cob_players_select.currentIndexChanged.connect(
+            self.update_player
+        )
         self.centralWidget.pb_generate.released.connect(self.run_generate_image)
         self.centralWidget.pb_save.released.connect(self.save)
         # self.centralWidget.gb_add_auto_party.toggled.connect(self.clicked_party_player)
@@ -191,7 +224,7 @@ class MainWindow(QMainWindow):
     ####################################################################################################################
     @staticmethod
     def print_click():
-        """"
+        """ "
         PLACEHOLDER FUNCTION
         """
         print("Button clicked")
@@ -250,14 +283,14 @@ class MainWindow(QMainWindow):
         """
         self.update_data()
         try:
-            with open(self.savefile, 'wb') as f:
+            with open(self.savefile, "wb") as f:
                 try:
                     pickle.dump(self.data, f)
                 except TypeError:
                     print(self.data)
 
             if js:
-                with open(self.savefile_json, 'w', encoding="utf-8") as save_file:
+                with open(self.savefile_json, "w", encoding="utf-8") as save_file:
                     json.dump(self.data, save_file, indent=4, sort_keys=True)
 
         except Exception:
@@ -272,9 +305,9 @@ class MainWindow(QMainWindow):
         player: dict = self.data["player"]
         self.change_signals_block_state(True)
 
-        if c_widget.cob_players_select.findText(player['Name']) == -1:
+        if c_widget.cob_players_select.findText(player["Name"]) == -1:
             new_player_list: List[str] = list()
-            new_player_list.append(player['Name'])
+            new_player_list.append(player["Name"])
             selected_player_name: str = c_widget.cob_players_select.currentText()
 
             for row in range(c_widget.cob_players_select.count()):
@@ -283,11 +316,13 @@ class MainWindow(QMainWindow):
                 if text != "New Player":
                     new_player_list.append(text)
                     try:
-                        del (self.data['players'][c_widget.cob_players_select.currentText()])
+                        del self.data["players"][
+                            c_widget.cob_players_select.currentText()
+                        ]
                     except KeyError:
                         pass
 
-            if selected_player_name != 'New Player':
+            if selected_player_name != "New Player":
                 new_player_list.remove(selected_player_name)
 
             new_player_list: List[str] = ["New Player"] + sorted(new_player_list)
@@ -297,10 +332,17 @@ class MainWindow(QMainWindow):
             for p in new_player_list:
                 c_widget.cob_players_select.addItem(p)
 
-            c_widget.cob_players_select.setCurrentIndex(c_widget.cob_players_select.findText(player['Name']))
+            c_widget.cob_players_select.setCurrentIndex(
+                c_widget.cob_players_select.findText(player["Name"])
+            )
 
-        elif c_widget.cob_players_select.findText(player['Name']) is not c_widget.cob_players_select.currentIndex():
-            c_widget.cob_players_select.setCurrentIndex(c_widget.cob_players_select.findText(player['Name']))
+        elif (
+            c_widget.cob_players_select.findText(player["Name"])
+            is not c_widget.cob_players_select.currentIndex()
+        ):
+            c_widget.cob_players_select.setCurrentIndex(
+                c_widget.cob_players_select.findText(player["Name"])
+            )
 
         try:
             self.data["players"][player["Name"]] = player
@@ -316,8 +358,10 @@ class MainWindow(QMainWindow):
         """
         try:
             c_widget: QWidget = self.centralWidget
-            del (self.data["players"][c_widget.cob_players_select.currentText()])
-            c_widget.cob_players_select.removeItem(c_widget.cob_players_select.currentIndex())
+            del self.data["players"][c_widget.cob_players_select.currentText()]
+            c_widget.cob_players_select.removeItem(
+                c_widget.cob_players_select.currentIndex()
+            )
 
         except KeyError:
             pass
@@ -336,7 +380,11 @@ class MainWindow(QMainWindow):
                 except KeyError:
                     tr.print_exc()
             else:
-                self.data["player"]: PlayerDict = {"Name": "Player Name", "Color": "Black", "Entries": list()}
+                self.data["player"]: PlayerDict = {
+                    "Name": "Player Name",
+                    "Color": "Black",
+                    "Entries": list(),
+                }
 
             self.update_ui()
             self.update_data()
@@ -344,7 +392,9 @@ class MainWindow(QMainWindow):
         except Exception:
             tr.print_exc()
 
-    def progress_update(self, set=False, start=None, stop=None, i=1, current=None, fullstop=False):
+    def progress_update(
+        self, set=False, start=None, stop=None, i=1, current=None, fullstop=False
+    ):
         """
         Method used to control the main QProgressbar and call the method 'show' and 'hide' of its QFrame container
 
@@ -409,8 +459,10 @@ class MainWindow(QMainWindow):
             self.__player_data = {
                 "Name": self.centralWidget.le_player_name.placeholderText(),
                 "Color": self.centralWidget.le_player_color.placeholderText(),
-                "Entries": [self.centralWidget.lw_player_entries.item(entry).text() for entry in
-                            range(self.centralWidget.lw_player_entries.count())]
+                "Entries": [
+                    self.centralWidget.lw_player_entries.item(entry).text()
+                    for entry in range(self.centralWidget.lw_player_entries.count())
+                ],
             }
 
             return self.__player_data
@@ -433,7 +485,10 @@ class MainWindow(QMainWindow):
         c_widget.le_player_name.setText("")
 
         c_widget.le_player_name.setPlaceholderText(
-            self.__player_data["Name"] if 'Name' in self.__player_data.keys() else "Player Name")
+            self.__player_data["Name"]
+            if "Name" in self.__player_data.keys()
+            else "Player Name"
+        )
 
         c_widget.lw_player_entries.clear()
 
@@ -441,10 +496,13 @@ class MainWindow(QMainWindow):
             for entry in self.__player_data["Entries"]:
                 self.add_entry(entry)
 
-        c_widget.le_player_color.setText('')
+        c_widget.le_player_color.setText("")
 
         c_widget.le_player_color.setPlaceholderText(
-            self.__player_data["Color"] if 'Color' in self.__player_data.keys() else "Black")
+            self.__player_data["Color"]
+            if "Color" in self.__player_data.keys()
+            else "Black"
+        )
 
     def load(self, js=True):
         """
@@ -453,7 +511,7 @@ class MainWindow(QMainWindow):
         :param js: (optional) Force json save file
         :type js: bool
         """
-        with open(self.savefile, 'rb') as data_file:
+        with open(self.savefile, "rb") as data_file:
             try:
                 self.data = pickle.load(data_file)
             except EOFError:
@@ -461,7 +519,7 @@ class MainWindow(QMainWindow):
 
         if js:
             try:
-                with open(self.savefile_json, 'r', encoding="utf-8") as data_file:
+                with open(self.savefile_json, "r", encoding="utf-8") as data_file:
                     self.data = json.load(data_file)
             except EOFError:
                 tr.print_exc()
@@ -514,22 +572,50 @@ class MainWindow(QMainWindow):
             f_path = self.__TMP
 
             if not img:
-                line_qual = int(360 * (10 ** np.linspace(-0.5, 3.8, 100)[self.data["hs_line_quality"]]))
-                t = self.data["le_image_title"] if self.data["chb_image_title"] else False
+                line_qual = int(
+                    360
+                    * (10 ** np.linspace(-0.5, 3.8, 100)[self.data["hs_line_quality"]])
+                )
+                t = (
+                    self.data["le_image_title"]
+                    if self.data["chb_image_title"]
+                    else False
+                )
 
-                alignment = 'left' if self.data["title_alignment"] == 0 else 'right' if \
-                    self.data["title_alignment"] == 2 else "center"
+                alignment = (
+                    "left"
+                    if self.data["title_alignment"] == 0
+                    else "right"
+                    if self.data["title_alignment"] == 2
+                    else "center"
+                )
 
                 vis.plot_background(n=line_qual, kwargs=BACKGROUND_KWARGS)
 
-                vis.plot_foreground(tight=False, kwargs={'title': t, 'alignment': alignment, 'fontsize':
-                    self.__fontsize * 1.1})
+                vis.plot_foreground(
+                    tight=False,
+                    kwargs={
+                        "title": t,
+                        "alignment": alignment,
+                        "fontsize": self.__fontsize * 1.1,
+                    },
+                )
 
-                self.savefig(f_path, min(self.data['sb_image_dpi'], 500), "png", quality=6, transparency=True)
+                self.savefig(
+                    f_path,
+                    min(self.data["sb_image_dpi"], 500),
+                    "png",
+                    quality=6,
+                    transparency=True,
+                )
 
-            self.centralWidget.l_image.setPixmap(QPixmap(f_path).scaled(np.array(self.centralWidget.l_image.size()) * 1,
-                                                                        mode=Qt.SmoothTransformation,
-                                                                        aspectMode=Qt.KeepAspectRatio))
+            self.centralWidget.l_image.setPixmap(
+                QPixmap(f_path).scaled(
+                    np.array(self.centralWidget.l_image.size()) * 1,
+                    mode=Qt.SmoothTransformation,
+                    aspectMode=Qt.KeepAspectRatio,
+                )
+            )
 
         except KeyError:
             pass
@@ -538,9 +624,13 @@ class MainWindow(QMainWindow):
         """
         Method called by QSignal that generates a resized preview image
         """
-        self.centralWidget.l_image.setPixmap(QPixmap(self.__TMP).scaled(self.centralWidget.l_image.size() * 1,
-                                                                        mode=Qt.SmoothTransformation,
-                                                                        aspectMode=Qt.KeepAspectRatio))
+        self.centralWidget.l_image.setPixmap(
+            QPixmap(self.__TMP).scaled(
+                self.centralWidget.l_image.size() * 1,
+                mode=Qt.SmoothTransformation,
+                aspectMode=Qt.KeepAspectRatio,
+            )
+        )
 
     def savefig(self, out, size=None, f_format=None, transparency=None, quality=None):
         """
@@ -564,17 +654,37 @@ class MainWindow(QMainWindow):
 
         metadata["Creation Time"] = time.ctime()
 
-        dpi = size / (72 / 100 * 5.) if size else self.data["sb_image_dpi"] / (72 / 100 * 5.)
+        dpi = (
+            size / (72 / 100 * 5.0)
+            if size
+            else self.data["sb_image_dpi"] / (72 / 100 * 5.0)
+        )
 
-        f_format = f_format if f_format else "png" if self.data["image_format"] < 2 else "jpeg"
+        f_format = (
+            f_format if f_format else "png" if self.data["image_format"] < 2 else "jpeg"
+        )
 
-        transparency = transparency if transparency else True if self.data["image_format"] == 1 else False
+        transparency = (
+            transparency
+            if transparency
+            else True
+            if self.data["image_format"] == 1
+            else False
+        )
 
-        quality = round(np.linspace(0, 95, 12)[quality - 1]) if quality else round(
-            np.linspace(0, 95, 12)[self.data["hs_jpeg_qual"] - 1])
+        quality = (
+            round(np.linspace(0, 95, 12)[quality - 1])
+            if quality
+            else round(np.linspace(0, 95, 12)[self.data["hs_jpeg_qual"] - 1])
+        )
 
-        plt.savefig(fname=out, dpi=dpi, format=f_format, transparent=transparency, pil_kwargs={
-            'quality': int(round(quality)), "metadata": metadata})
+        plt.savefig(
+            fname=out,
+            dpi=dpi,
+            format=f_format,
+            transparent=transparency,
+            pil_kwargs={"quality": int(round(quality)), "metadata": metadata},
+        )
 
     def update_data(self):
         """
@@ -584,22 +694,32 @@ class MainWindow(QMainWindow):
             data: DataDict = dict()
             c_widget: QWidget = self.centralWidget
             s_c_widget: QWidget = self.settingsUI.centralWidget
-            data['chb_image_title'] = c_widget.chb_image_title.isChecked()
-            data['le_image_title'] = c_widget.le_image_title.placeholderText()
+            data["chb_image_title"] = c_widget.chb_image_title.isChecked()
+            data["le_image_title"] = c_widget.le_image_title.placeholderText()
             data["sb_first_entry_weight"] = c_widget.sb_first_entry_weight.value()
             data["sb_rolling_window_size"] = c_widget.sb_rolling_window_size.value()
             data["cob_players_select"] = c_widget.cob_players_select.currentIndex()
             data["gb_add_auto_party"] = c_widget.gb_add_auto_party.isChecked()
             data["le_party_color"] = c_widget.le_party_color.placeholderText()
             data["le_party_name"] = c_widget.le_party_name.placeholderText()
-            data["cob_party_starting_alignment"] = c_widget.cob_party_starting_alignment.currentText()
+            data[
+                "cob_party_starting_alignment"
+            ] = c_widget.cob_party_starting_alignment.currentText()
             data["rb_average"] = c_widget.rb_party_average.isChecked()
 
-            data['out_path'] = os.path.realpath((s_c_widget.le_output_path.text())) \
-                if s_c_widget.le_output_path.text() else os.path.realpath((s_c_widget.le_output_path.placeholderText()))
+            data["out_path"] = (
+                os.path.realpath((s_c_widget.le_output_path.text()))
+                if s_c_widget.le_output_path.text()
+                else os.path.realpath((s_c_widget.le_output_path.placeholderText()))
+            )
 
-            data["image_format"] = 0 if s_c_widget.rb_png.isChecked() else 1 \
-                if s_c_widget.rb_png_transparency.isChecked() else 2
+            data["image_format"] = (
+                0
+                if s_c_widget.rb_png.isChecked()
+                else 1
+                if s_c_widget.rb_png_transparency.isChecked()
+                else 2
+            )
 
             data["hs_line_quality"] = s_c_widget.hs_line_quality.value()
             data["hs_jpeg_qual"] = s_c_widget.hs_jpeg_qual.value()
@@ -614,27 +734,69 @@ class MainWindow(QMainWindow):
             data["le_party_color"] = c_widget.le_party_color.placeholderText()
             data["le_party_name"] = c_widget.le_party_name.placeholderText()
 
-            data["legend_text_alignment"] = 0 if s_c_widget.rb_legend_text_left.isChecked() else 1 if \
-                s_c_widget.rb_legend_text_center.isChecked() else 2
+            data["legend_text_alignment"] = (
+                0
+                if s_c_widget.rb_legend_text_left.isChecked()
+                else 1
+                if s_c_widget.rb_legend_text_center.isChecked()
+                else 2
+            )
 
             data["le_current_custom"] = s_c_widget.le_current_custom.text()
 
-            data["current_marker"] = 0 if s_c_widget.rb_current_o.isChecked() else 1 \
-                if s_c_widget.rb_current_x.isChecked() else 2 if s_c_widget.rb_current_star.isChecked() else 3 \
-                if s_c_widget.rb_current_plus.isChecked() else 4 if s_c_widget.rb_current_left.isChecked() else 5 \
-                if s_c_widget.rb_current_up.isChecked() else 6 if s_c_widget.rb_current_right.isChecked() else 7 \
-                if s_c_widget.rb_current_down.isChecked() else 8 if s_c_widget.rb_current_none.isChecked() else 9
+            data["current_marker"] = (
+                0
+                if s_c_widget.rb_current_o.isChecked()
+                else 1
+                if s_c_widget.rb_current_x.isChecked()
+                else 2
+                if s_c_widget.rb_current_star.isChecked()
+                else 3
+                if s_c_widget.rb_current_plus.isChecked()
+                else 4
+                if s_c_widget.rb_current_left.isChecked()
+                else 5
+                if s_c_widget.rb_current_up.isChecked()
+                else 6
+                if s_c_widget.rb_current_right.isChecked()
+                else 7
+                if s_c_widget.rb_current_down.isChecked()
+                else 8
+                if s_c_widget.rb_current_none.isChecked()
+                else 9
+            )
 
             data["le_previous_custom"] = s_c_widget.le_previous_custom.text()
 
-            data["previous_marker"] = 0 if s_c_widget.rb_previous_o.isChecked() else 1 \
-                if s_c_widget.rb_previous_x.isChecked() else 2 if s_c_widget.rb_previous_star.isChecked() else 3 \
-                if s_c_widget.rb_previous_plus.isChecked() else 4 if s_c_widget.rb_previous_left.isChecked() else 5 \
-                if s_c_widget.rb_previous_up.isChecked() else 6 if s_c_widget.rb_previous_right.isChecked() else 7 \
-                if s_c_widget.rb_previous_down.isChecked() else 8 if s_c_widget.rb_previous_none.isChecked() else 9
+            data["previous_marker"] = (
+                0
+                if s_c_widget.rb_previous_o.isChecked()
+                else 1
+                if s_c_widget.rb_previous_x.isChecked()
+                else 2
+                if s_c_widget.rb_previous_star.isChecked()
+                else 3
+                if s_c_widget.rb_previous_plus.isChecked()
+                else 4
+                if s_c_widget.rb_previous_left.isChecked()
+                else 5
+                if s_c_widget.rb_previous_up.isChecked()
+                else 6
+                if s_c_widget.rb_previous_right.isChecked()
+                else 7
+                if s_c_widget.rb_previous_down.isChecked()
+                else 8
+                if s_c_widget.rb_previous_none.isChecked()
+                else 9
+            )
 
-            data["title_alignment"] = 0 if s_c_widget.rb_title_left.isChecked() else 1 \
-                if s_c_widget.rb_title_center.isChecked() else 2
+            data["title_alignment"] = (
+                0
+                if s_c_widget.rb_title_left.isChecked()
+                else 1
+                if s_c_widget.rb_title_center.isChecked()
+                else 2
+            )
 
             data["player"] = self.current_player_data
 
@@ -670,26 +832,36 @@ class MainWindow(QMainWindow):
             for entry in sorted(self.data["players"]):
                 c_widget.cob_players_select.addItem(entry)
 
-            c_widget.cob_players_select.setCurrentIndex(c_widget.cob_players_select.findText(current_player))
+            c_widget.cob_players_select.setCurrentIndex(
+                c_widget.cob_players_select.findText(current_player)
+            )
 
-            c_widget.le_image_title.setPlaceholderText(self.data["le_image_title"] if self.data["le_image_title"] else
-                                                       "Party Players Alignment Chart")
+            c_widget.le_image_title.setPlaceholderText(
+                self.data["le_image_title"]
+                if self.data["le_image_title"]
+                else "Party Players Alignment Chart"
+            )
 
             c_widget.sb_first_entry_weight.setValue(self.data["sb_first_entry_weight"])
-            c_widget.sb_rolling_window_size.setValue(self.data["sb_rolling_window_size"])
+            c_widget.sb_rolling_window_size.setValue(
+                self.data["sb_rolling_window_size"]
+            )
             c_widget.gb_add_auto_party.setChecked(self.data["gb_add_auto_party"])
 
-            c_widget.cob_party_starting_alignment.setCurrentIndex(c_widget.cob_party_starting_alignment.findText(
-                self.data["cob_party_starting_alignment"]))
+            c_widget.cob_party_starting_alignment.setCurrentIndex(
+                c_widget.cob_party_starting_alignment.findText(
+                    self.data["cob_party_starting_alignment"]
+                )
+            )
 
             c_widget.rb_party_average.setChecked(self.data["rb_average"])
             c_widget.le_party_color.setPlaceholderText(self.data["le_party_color"])
             c_widget.le_party_name.setPlaceholderText(self.data["le_party_name"])
 
-            if current_player in self.data['players'].keys():
-                p = self.data['players'][current_player]
-                c_widget.le_player_color.setPlaceholderText(p['Color'])
-                c_widget.le_player_name.setPlaceholderText(p['Name'])
+            if current_player in self.data["players"].keys():
+                p = self.data["players"][current_player]
+                c_widget.le_player_color.setPlaceholderText(p["Color"])
+                c_widget.le_player_name.setPlaceholderText(p["Name"])
                 c_widget.lw_player_entries.clear()
                 for entry in p["Entries"]:
                     c_widget.lw_player_entries.addItem(entry)
@@ -699,9 +871,13 @@ class MainWindow(QMainWindow):
                 c_widget.le_player_name.setPlaceholderText("Player Name")
                 c_widget.lw_player_entries.clear()
 
-            s_c_widget.rb_png.setChecked(True) if self.data["image_format"] == 0 \
-                else s_c_widget.rb_png_transparency.setChecked(True) if self.data["image_format"] == 1 \
-                else s_c_widget.rb_jpeg.setChecked(True)
+            s_c_widget.rb_png.setChecked(True) if self.data[
+                "image_format"
+            ] == 0 else s_c_widget.rb_png_transparency.setChecked(True) if self.data[
+                "image_format"
+            ] == 1 else s_c_widget.rb_jpeg.setChecked(
+                True
+            )
 
             s_c_widget.hs_current_scale.setValue(self.data["hs_current_scale"])
             s_c_widget.hs_line_quality.setValue(self.data["hs_line_quality"])
@@ -714,40 +890,100 @@ class MainWindow(QMainWindow):
             s_c_widget.le_current_custom.setText(self.data["le_current_custom"])
             s_c_widget.le_output_path.setText(self.data["out_path"])
 
-            s_c_widget.rb_current_o.setChecked(True) if self.data["current_marker"] == 0 \
-                else s_c_widget.rb_current_x.setChecked(True) if self.data["current_marker"] == 1 \
-                else s_c_widget.rb_current_star.setChecked(True) if self.data["current_marker"] == 2 \
-                else s_c_widget.rb_current_plus.setChecked(True) if self.data["current_marker"] == 3 \
-                else s_c_widget.rb_current_left.setChecked(True) if self.data["current_marker"] == 4 \
-                else s_c_widget.rb_current_up.setChecked(True) if self.data["current_marker"] == 5 \
-                else s_c_widget.rb_current_right.setChecked(True) if self.data["current_marker"] == 6 \
-                else s_c_widget.rb_current_down.setChecked(True) if self.data["current_marker"] == 7 \
-                else s_c_widget.rb_current_none.setChecked(True) if self.data["current_marker"] == 8 \
-                else s_c_widget.rb_current_custom.setChecked(True)
+            s_c_widget.rb_current_o.setChecked(True) if self.data[
+                "current_marker"
+            ] == 0 else s_c_widget.rb_current_x.setChecked(True) if self.data[
+                "current_marker"
+            ] == 1 else s_c_widget.rb_current_star.setChecked(
+                True
+            ) if self.data[
+                "current_marker"
+            ] == 2 else s_c_widget.rb_current_plus.setChecked(
+                True
+            ) if self.data[
+                "current_marker"
+            ] == 3 else s_c_widget.rb_current_left.setChecked(
+                True
+            ) if self.data[
+                "current_marker"
+            ] == 4 else s_c_widget.rb_current_up.setChecked(
+                True
+            ) if self.data[
+                "current_marker"
+            ] == 5 else s_c_widget.rb_current_right.setChecked(
+                True
+            ) if self.data[
+                "current_marker"
+            ] == 6 else s_c_widget.rb_current_down.setChecked(
+                True
+            ) if self.data[
+                "current_marker"
+            ] == 7 else s_c_widget.rb_current_none.setChecked(
+                True
+            ) if self.data[
+                "current_marker"
+            ] == 8 else s_c_widget.rb_current_custom.setChecked(
+                True
+            )
 
-            s_c_widget.rb_previous_o.setChecked(True) if self.data["previous_marker"] == 0 \
-                else s_c_widget.rb_previous_x.setChecked(True) if self.data["previous_marker"] == 1 \
-                else s_c_widget.rb_previous_star.setChecked(True) if self.data["previous_marker"] == 2 \
-                else s_c_widget.rb_previous_plus.setChecked(True) if self.data["previous_marker"] == 3 \
-                else s_c_widget.rb_previous_left.setChecked(True) if self.data["previous_marker"] == 4 \
-                else s_c_widget.rb_previous_up.setChecked(True) if self.data["previous_marker"] == 5 \
-                else s_c_widget.rb_previous_right.setChecked(True) if self.data["previous_marker"] == 6 \
-                else s_c_widget.rb_previous_down.setChecked(True) if self.data["previous_marker"] == 7 \
-                else s_c_widget.rb_previous_none.setChecked(True) if self.data["previous_marker"] == 8 \
-                else s_c_widget.rb_previous_custom.setChecked(True)
+            s_c_widget.rb_previous_o.setChecked(True) if self.data[
+                "previous_marker"
+            ] == 0 else s_c_widget.rb_previous_x.setChecked(True) if self.data[
+                "previous_marker"
+            ] == 1 else s_c_widget.rb_previous_star.setChecked(
+                True
+            ) if self.data[
+                "previous_marker"
+            ] == 2 else s_c_widget.rb_previous_plus.setChecked(
+                True
+            ) if self.data[
+                "previous_marker"
+            ] == 3 else s_c_widget.rb_previous_left.setChecked(
+                True
+            ) if self.data[
+                "previous_marker"
+            ] == 4 else s_c_widget.rb_previous_up.setChecked(
+                True
+            ) if self.data[
+                "previous_marker"
+            ] == 5 else s_c_widget.rb_previous_right.setChecked(
+                True
+            ) if self.data[
+                "previous_marker"
+            ] == 6 else s_c_widget.rb_previous_down.setChecked(
+                True
+            ) if self.data[
+                "previous_marker"
+            ] == 7 else s_c_widget.rb_previous_none.setChecked(
+                True
+            ) if self.data[
+                "previous_marker"
+            ] == 8 else s_c_widget.rb_previous_custom.setChecked(
+                True
+            )
 
             s_c_widget.le_previous_custom.setText(self.data["le_previous_custom"])
 
-            s_c_widget.rb_title_left.setChecked(True) if self.data["title_alignment"] == 0 \
-                else s_c_widget.rb_title_center.setChecked(True) if self.data["title_alignment"] == 1 \
-                else s_c_widget.rb_title_right.setChecked(True)
+            s_c_widget.rb_title_left.setChecked(True) if self.data[
+                "title_alignment"
+            ] == 0 else s_c_widget.rb_title_center.setChecked(True) if self.data[
+                "title_alignment"
+            ] == 1 else s_c_widget.rb_title_right.setChecked(
+                True
+            )
 
-            s_c_widget.rb_legend_text_left.setChecked(True) if self.data["legend_text_alignment"] == 0 else \
-                s_c_widget.rb_legend_text_center.setChecked(True) if self.data["legend_text_alignment"] == 1 else \
-                    s_c_widget.rb_legend_text_right.setChecked(True)
+            s_c_widget.rb_legend_text_left.setChecked(True) if self.data[
+                "legend_text_alignment"
+            ] == 0 else s_c_widget.rb_legend_text_center.setChecked(True) if self.data[
+                "legend_text_alignment"
+            ] == 1 else s_c_widget.rb_legend_text_right.setChecked(
+                True
+            )
 
             s_c_widget.le_output_path.setText(self.__Final)
-            self.current_player_data = self.data["player"] if "player" in self.data.keys() else None
+            self.current_player_data = (
+                self.data["player"] if "player" in self.data.keys() else None
+            )
 
             if first_call:
                 self.update_player()
@@ -766,16 +1002,41 @@ class MainWindow(QMainWindow):
         :param in_le: A QLineEdit widget to test
         :type in_le: QLineEdit
         """
-        colors = ('black', 'blue', 'brown', 'cyan', 'darkblue', 'darkcyan', 'darkgray', 'darkgreen', 'darkmagenta',
-                  'darkred', 'gray', 'green', 'lightblue', 'lightcyan', 'lightgray', 'lightgreen', 'lightmagenta',
-                  'lightred', 'magenta', 'orange', 'red', 'white', 'yellow', "pink", "")
+        colors = (
+            "black",
+            "blue",
+            "brown",
+            "cyan",
+            "darkblue",
+            "darkcyan",
+            "darkgray",
+            "darkgreen",
+            "darkmagenta",
+            "darkred",
+            "gray",
+            "green",
+            "lightblue",
+            "lightcyan",
+            "lightgray",
+            "lightgreen",
+            "lightmagenta",
+            "lightred",
+            "magenta",
+            "orange",
+            "red",
+            "white",
+            "yellow",
+            "pink",
+            "",
+        )
         # FIXME: Some colors return an error, they need to be checked and possibly extended
 
         if in_le is self.centralWidget.le_player_color:
             if self.centralWidget.le_player_color.text().lower() in colors:
                 if self.centralWidget.le_player_color.text():
                     self.centralWidget.le_player_color.setPlaceholderText(
-                        self.centralWidget.le_player_color.text().capitalize())
+                        self.centralWidget.le_player_color.text().capitalize()
+                    )
 
                     self.centralWidget.le_player_color.setText("")
                 self.centralWidget.le_player_entry.setFocus()
@@ -784,7 +1045,8 @@ class MainWindow(QMainWindow):
             if self.centralWidget.le_party_color.text().lower() in colors:
                 if self.centralWidget.le_party_color.text():
                     self.centralWidget.le_party_color.setPlaceholderText(
-                        self.centralWidget.le_party_color.text().capitalize())
+                        self.centralWidget.le_party_color.text().capitalize()
+                    )
 
                     self.centralWidget.le_party_color.setText("")
                 self.centralWidget.le_player_name.setFocus()
@@ -812,13 +1074,17 @@ class MainWindow(QMainWindow):
 
         if le_name is self.centralWidget.le_player_name:
             if self.centralWidget.le_player_name.text():
-                self.centralWidget.le_player_name.setPlaceholderText(self.centralWidget.le_player_name.text())
+                self.centralWidget.le_player_name.setPlaceholderText(
+                    self.centralWidget.le_player_name.text()
+                )
                 self.centralWidget.le_player_name.setText("")
             self.centralWidget.le_player_color.setFocus()
 
         elif le_name is self.centralWidget.le_party_name:
             if self.centralWidget.le_party_name.text():
-                self.centralWidget.le_party_name.setPlaceholderText(self.centralWidget.le_party_name.text())
+                self.centralWidget.le_party_name.setPlaceholderText(
+                    self.centralWidget.le_party_name.text()
+                )
                 self.centralWidget.le_party_name.setText("")
 
             self.centralWidget.le_party_color.setFocus()
@@ -842,7 +1108,9 @@ class MainWindow(QMainWindow):
         Method that updates the current party name if a new entry was given
         """
         if self.centralWidget.le_image_title.text():
-            self.centralWidget.le_image_title.setPlaceholderText(self.centralWidget.le_image_title.text())
+            self.centralWidget.le_image_title.setPlaceholderText(
+                self.centralWidget.le_image_title.text()
+            )
             self.centralWidget.le_image_title.setText("")
 
         self.centralWidget.le_player_name.setFocus()
@@ -855,8 +1123,31 @@ class MainWindow(QMainWindow):
         :param entry: (optional) Overrides new entry value, default is None
         :type entry: str
         """
-        alignement = ("LG", "LB", "NG", "NB", "CG", "CB", "LN", "TN", "CN", "LE", "LM", "NE", "NM", "CE", "CM", "L",
-                      "N", "T", "C", "G", "B", "E", "M")
+        alignement = (
+            "LG",
+            "LB",
+            "NG",
+            "NB",
+            "CG",
+            "CB",
+            "LN",
+            "TN",
+            "CN",
+            "LE",
+            "LM",
+            "NE",
+            "NM",
+            "CE",
+            "CM",
+            "L",
+            "N",
+            "T",
+            "C",
+            "G",
+            "B",
+            "E",
+            "M",
+        )
 
         if not entry:
             entry = self.centralWidget.le_player_entry.text().upper()
@@ -872,9 +1163,13 @@ class MainWindow(QMainWindow):
         Method that deletes the selected entry (or the last if none is selected) of the QListWidget
         """
         if self.centralWidget.lw_player_entries.currentItem():
-            self.centralWidget.lw_player_entries.takeItem(self.centralWidget.lw_player_entries.currentRow())
+            self.centralWidget.lw_player_entries.takeItem(
+                self.centralWidget.lw_player_entries.currentRow()
+            )
         else:
-            self.centralWidget.lw_player_entries.takeItem(self.centralWidget.lw_player_entries.count() - 1)
+            self.centralWidget.lw_player_entries.takeItem(
+                self.centralWidget.lw_player_entries.count() - 1
+            )
 
     def clear_entries(self):
         """
@@ -890,21 +1185,32 @@ class MainWindow(QMainWindow):
             self.finished = False
             self.update_data()
             data: DataDict = self.data
-            players: Dict[str, PlayerDict] = data['players']
-            line_qual = int(360 * (10 ** np.linspace(-0.5, 3.8, 100)[data["hs_line_quality"]]))
+            players: Dict[str, PlayerDict] = data["players"]
+            line_qual = int(
+                360 * (10 ** np.linspace(-0.5, 3.8, 100)[data["hs_line_quality"]])
+            )
             tasks = 0
 
             for player in players:
                 player: PlayerDict = players[player]
-                tasks += (max(0, data['sb_first_entry_weight'] - data['sb_rolling_window_size'])) * 2
+                tasks += (
+                    max(
+                        0,
+                        data["sb_first_entry_weight"] - data["sb_rolling_window_size"],
+                    )
+                ) * 2
                 tasks += (len(player["Entries"]) - 1) * 2
 
-            tasks += (max(0, data['sb_first_entry_weight'] - data['sb_rolling_window_size'])) * 2 + 2
+            tasks += (
+                max(0, data["sb_first_entry_weight"] - data["sb_rolling_window_size"])
+            ) * 2 + 2
             self.progress_update(True, 0, 10 + tasks + line_qual, 1, 0)
 
         try:
             self.centralWidget.pb_generate.setEnabled(False)
-            worker: Worker = Worker((self.data.copy(), self.__Final, self.__TMP, self.__fontsize))
+            worker: Worker = Worker(
+                (self.data.copy(), self.__Final, self.__TMP, self.__fontsize)
+            )
             worker.moveToThread(self.loop)
             worker.finished.connect(self.get_generated_image, Qt.QueuedConnection)
             worker.signal.connect(self.progress_update, Qt.QueuedConnection)
@@ -961,7 +1267,7 @@ def launch():
         app.focusWindow()
         app.exec_()
         app.deleteLater()
-        del (app)
+        del app
 
     except Exception:
         tr.print_exc()

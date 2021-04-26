@@ -79,7 +79,10 @@ def alignment_to_position(entries, first_entry_weight=1):
         x = []
         y = []
         if len(old_value) == 2:
-            value = [old_value[0], old_value[1]]  # jit forced manual list(str) conversion
+            value = [
+                old_value[0],
+                old_value[1],
+            ]  # jit forced manual list(str) conversion
             if value[0] == "N":
                 value[0] = "T"
         elif len(old_value) == 1:
@@ -87,17 +90,17 @@ def alignment_to_position(entries, first_entry_weight=1):
 
         for v in value:
             if v == "L":
-                x.append(-1.)
+                x.append(-1.0)
             elif v == "T":
-                x.append(0.)
+                x.append(0.0)
             elif v == "C":
-                x.append(1.)
-            elif v in ('G', 'B'):
-                y.append(1.)
+                x.append(1.0)
+            elif v in ("G", "B"):
+                y.append(1.0)
             elif v == "N":
-                y.append(0.)
-            elif v in ("E", 'M'):
-                y.append(-1.)
+                y.append(0.0)
+            elif v in ("E", "M"):
+                y.append(-1.0)
         if len(x) > len(y):
             for j in range(len(x) - len(y)):
                 y.append(np.nan)
