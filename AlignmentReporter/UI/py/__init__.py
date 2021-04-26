@@ -853,8 +853,10 @@ class MainWindow(QMainWindow):
                     self.data["cob_party_starting_alignment"]
                 )
             )
-
-            c_widget.rb_party_average.setChecked(self.data["rb_average"])
+            if self.data["rb_average"]:
+                c_widget.rb_party_average.setChecked(True)
+            else:
+                c_widget.rb_party_cumul.setChecked(True)
             c_widget.le_party_color.setPlaceholderText(self.data["le_party_color"])
             c_widget.le_party_name.setPlaceholderText(self.data["le_party_name"])
 
