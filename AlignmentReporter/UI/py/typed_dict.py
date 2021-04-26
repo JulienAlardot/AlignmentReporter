@@ -1,4 +1,4 @@
-from typing import TypedDict, List, Dict
+from typing import TypedDict, List, Dict, Union, Tuple
 
 
 class PlayerDict(TypedDict):
@@ -7,7 +7,7 @@ class PlayerDict(TypedDict):
     """
 
     Color: str
-    Entries: List[str]
+    Entries: Union[List[str], Tuple[Tuple[float, float]]]
     Name: str
 
 
