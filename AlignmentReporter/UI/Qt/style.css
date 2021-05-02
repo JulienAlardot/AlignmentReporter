@@ -1,14 +1,15 @@
 QWidget{
-    background: #CBCBD6;
+    /*background: #CBCBD6;*/
+    background: #c0c0d2;
     border-color: #4E4E57;
-    padding:10px;
-    font-size: 18px;
+    padding:8px;
+    font-size: 10px;
 }
 QFrame{
     border-style: solid;
     border-width: 2px;
     border-radius: 2px;
-    padding: 4px;
+    padding: 2px;
 }
 QFrame[holder="true"]{
     border-style: solid;
@@ -17,20 +18,21 @@ QFrame[holder="true"]{
 QFrame#f_main{
     border-style: inset;
 }
-QFrame#w_main_window, QFrame#f_current_custom, QFrame#f_previous_custom{
+QFrame#w_main_window, QFrame#f_current_custom, QFrame#f_progress_bar,QFrame#f_previous_custom{
     border-style: none;
     padding: 1px;
 }
-QFrame#f_players, QFrame#f_legend_stretch, QFrame#f_legend_offset, QFrame#f_legend_text_alingment,QFrame#f_previous_markers, QFrame#f_current_marker, QFrame#f_jpeg_quality, QFrame#f_image_settings, QFrame#f_image_format{
+QFrame#f_players, QFrame#f_legend_stretch, QFrame#f_legend_offset, QFrame#f_legend_text_alingment,
+QFrame#f_previous_markers, QFrame#f_current_marker, QFrame#f_jpeg_quality, QFrame#f_image_settings,
+QFrame#f_image_format{
     border-style: inset;
     border-width: 2px;
     border-radius: 2px;
 }
 QFrame#f_legend_stretch, QFrame#f_current_scale, QFrame#f_legend_offset, QFrame#f_legend_text_alingment,
-QFrame#f_previous_markers, QFrame#f_scale, QLabel#l_scale_high, QLabel#l_scale_low,
-QFrame#f_current_marker, QFrame#f_jpeg_quality, QFrame#f_image_settings, QFrame#f_image_format, QLabel#l_line_high,
-QLabel#l_current_scale_high, QLabel#l_current_scale_low, QLabel#l_line_low, QLabel#l_jpeg_low, QLabel#l_jpeg_high,
-QLabel#l_legend_offset_up,
+QFrame#f_previous_markers, QFrame#f_scale, QLabel#l_scale_high, QLabel#l_scale_low, QFrame#f_current_marker,
+QFrame#f_jpeg_quality, QFrame#f_image_settings, QFrame#f_image_format, QLabel#l_line_high, QLabel#l_current_scale_high,
+QLabel#l_current_scale_low, QLabel#l_line_low, QLabel#l_jpeg_low, QLabel#l_jpeg_high, QLabel#l_legend_offset_up,
 QLabel#l_legend_offset_left, QLabel#l_legend_offset_down, QLabel#l_legend_offset_right, QLabel#l_legend_stretch_low,
 QLabel#l_legend_stretch_high, QFrame#f_title_settings,  QSlider, QRadioButton, QFrame#f_previous_custom,
 QFrame#f_current_custom{
@@ -59,6 +61,7 @@ QGroupBox::title{
     subcontrol-origin: margin;
     subcontrol-position: top center;
     border-color: #4E4E57;
+    background-color: transparent;
 }
 QScrollArea{
     border-style: none;
@@ -90,11 +93,15 @@ QScrollBar::handle:vertical:pressed{
 }
 QScrollBar::up-arrow:vertical{
     border-style: inset;
-    image: url(../icons/arrow_up.png);
+    image: url(:/icons/arrow_u);
+    min-height: 10px;
+    min-width: 16px;
 }
 QScrollBar::down-arrow:vertical{
     border-style: inset;
-    image: url(../icons/arrow_down.png);
+    image: url(:/icons/arrow_d);
+    min-height: 10px;
+    min-width: 16px;
 }
 QToolButton, QPushButton{
     background: #D8D8E3;
@@ -107,6 +114,8 @@ QToolButton, QPushButton{
     padding-right: 2px;
 
 }
+
+
 QPushButton:pressed, QToolButton:pressed{
     background: #4E4E57;
     border-style: inset;
@@ -127,9 +136,10 @@ QComboBox::drop-down{
     border-radius: 4px;
     border-width: 2px;
     padding: 2px;
-    max-width: 16px;
-    max-height: 16px;
-    image: url(../icons/arrow_down.png);
+    image: url(:/icons/arrow_d);
+    min-height: 10px;
+    min-width: 16px;
+
 }
 QComboBox:pressed{
     background: #4E4E57;
@@ -137,6 +147,9 @@ QComboBox:pressed{
 }
 QComboBox:hover, QComboBox::drop-down:hover{
     background:  #E1E1ED;
+}
+QLineEdit{
+    padding: 2px;
 }
 QLineEdit, QListView, QSpinBox{
     background: #A5A5AD;
@@ -155,10 +168,14 @@ QLabel{
     border-width: 1px;
 }
 QSpinBox::down-button{
-    image: url(../icons/arrow_down.png);
+    image: url(:/icons/arrow_d);
+    min-height: 10px;
+    min-width: 16px;
 }
 QSpinBox::up-button{
-    image: url(../icons/arrow_up.png);
+    image: url(:/icons/arrow_u);
+    min-height: 10px;
+    min-width: 16px;
 }
 QSpinBox::up-button, QSpinBox::down-button{
     background: #D8D8E3;
@@ -166,27 +183,28 @@ QSpinBox::up-button, QSpinBox::down-button{
     border-radius: 2px;
     border-width: 2px;
 }
-QSpinBox::up-button:hover, QSpinBox::down-button:hover{
-    background: #E1E1ED;
-}
 QSpinBox::up-button:pressed, QSpinBox::down-button:pressed{
     background: #4E4E57;
+}
+QSpinBox::up-button:hover, QSpinBox::down-button:hover{
+    background: #E1E1ED;
 }
 QLabel#l_image{
     border-style: inset;
     border-width: 5px;
     border-radius: 50px;
-    background: #A5A5AD;
+    background: #fcfcfc;
+    /*background: #A5A5AD;*/
 }
 QLabel#l_bottom{
     border-style: none;
 }
 QProgressBar{
-    border-style: inset;
+    border-style: None;
     border-width: 2px;
     border-radius: 5px;
     background: #A5A5AD;
-    min-height: 30px;
+    min-height: 25px;
     padding: 2px;
     text-align: center;
 }
@@ -195,7 +213,7 @@ QProgressBar::chunk {
     border-radius: 5px;
     border-color: #A5A5AD;
     border-style: outset;
-    width: 40px;
+    width: 20px;
     margin: 0.5px;
     background:  #D8D8E3;
     font-weight: bold;
