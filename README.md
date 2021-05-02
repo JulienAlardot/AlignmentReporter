@@ -1,24 +1,24 @@
 # AlignmentReporter
 
 A tool for DM to easily make __Alignment Change Graphs__ for their Campaigns, __with a save system__
-to switch between parties. Originally just a part of a larger toolbox, I am currently making it a standalone project. 
+to switch between parties. Originally just a part of a larger toolbox, I am currently making it a standalone project.
 It is a bit old and need some changes (mainly using coroutines and C compilation).
 
-The tool is quite simple in its way, but I will add a tutorial later. For testing, simply launche the __init__.py at 
-the root directory and enter a save file name. It will automatically load any existing file in the data folder if it 
-exists. 
+The tool is quite simple in its way, but I will add a tutorial later. For testing, simply launche the __init__.py at
+the root directory and enter a save file name. It will automatically load any existing file in the data folder if it
+exists.
 I have **already created two save files from personal games** (accessible with the names "**Celtaidd**" and "**Volac**").
 
 The generated images are in the "***AlignmentReporter/out/***" directory, but a preview is loaded in the tool after each
 image generation.
 
 ## System recommendations
-This tool has been tested with the following setups. Please share any working or non-working setup you may use to 
+This tool has been tested with the following setups. Please share any working or non-working setup you may use to
 use this tool.
 
 - *OS:*
-  - ***Windows 10 (19041.928)***
-  - ***Linux Mint 20.1 (Xfce)***
+    - ***Windows 10 (19041.928)***
+    - ***Linux Mint 20.1 (Xfce)***
 - *Python **3.8.5***
 
 
@@ -28,14 +28,14 @@ in the root directory
 python setup.py install
 ```
 
-## Typical usages: 
+## Typical usages:
 
-### Python:  
+### Python:
 ```python
 import AlignmentReporter as AR; AR.launch()
 ```
 
-### in terminal: 
+### in terminal:
 
 ```
 AlignR-Launch
