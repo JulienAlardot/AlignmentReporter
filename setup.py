@@ -26,12 +26,12 @@ setup(
     },
     install_requires=[
         "setuptools>=40.8.0",
-        "PySide2==5.14.1",
-        "matplotlib>=3.3.4",
-        "numpy==1.19.5",
+        "PySide2<5.15>=5.13",
+        "matplotlib<=3.4>=3.3.4",
+        "numpy<1.21>=1.19",
         "pyparsing",
-        "Cython==0.29.21",
-        "pandas<1.2",
-        "scipy<=1.5",
+        "Cython<0.30>=0.28",
+        "pandas<1.3>=1.2",
+        "scipy<1.7>1.5",
     ],
 )
