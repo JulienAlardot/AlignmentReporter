@@ -43,7 +43,7 @@ AlignR-Launch
 
 ## Typical Output
 
-![Volac savefile output](./data/out/volac_s_stupid_freaks.png "Volac savefile output")
+![Volac savefile output](./data/out/volac_s_stupid_freaks.png)
 
 ## Tutorial
 *To be implemented*
