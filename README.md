@@ -51,3 +51,6 @@ AlignR-Launch
 ## Known Issues
 - GUI still freezes in Windows 10 when generating the image
 - Color implementation will sometimes accept wrong inputs or refuse correct ones.
+
+## Licence notice
+Every ***.UI*** file contained in this project has been created with the **QtDesigner** software from the **Qt Company** under the **GPL-3.0 License**. *(see the [Official Qt website](https://www.qt.io/) for more informations)*.
