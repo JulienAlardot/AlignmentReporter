@@ -1012,14 +1012,17 @@ class MainWindow(QMainWindow):
             "darkblue",
             "darkcyan",
             "darkgray",
+            "darkgrey",
             "darkgreen",
             "darkmagenta",
             "darkred",
             "gray",
+            "grey",
             "green",
             "lightblue",
             "lightcyan",
             "lightgray",
+            "lightgrey",
             "lightgreen",
             "lightmagenta",
             "lightred",
@@ -1193,8 +1196,8 @@ class MainWindow(QMainWindow):
             )
             tasks = 0
 
-            for player in players:
-                player: PlayerDict = players[player]
+            for play in players:
+                player: PlayerDict = players[play]
                 tasks += (
                     max(
                         0,
@@ -1206,12 +1209,12 @@ class MainWindow(QMainWindow):
             tasks += (
                 max(0, data["sb_first_entry_weight"] - data["sb_rolling_window_size"])
             ) * 2 + 2
-            self.progress_update(True, 0, 10 + tasks + line_qual, 1, 0)
+            self.progress_update(True, 0, 60 + tasks + line_qual, 1, 0)
 
         try:
             self.centralWidget.pb_generate.setEnabled(False)
             worker: Worker = Worker(
-                (self.data.copy(), self.__Final, self.__TMP, self.__fontsize)
+                (self.data, self.__Final, self.__TMP, self.__fontsize)
             )
             worker.moveToThread(self.loop)
             worker.finished.connect(self.get_generated_image, Qt.QueuedConnection)

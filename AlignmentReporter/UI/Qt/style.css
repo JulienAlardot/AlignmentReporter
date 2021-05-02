@@ -1,5 +1,6 @@
 QWidget{
-    background: #CBCBD6;
+    /*background: #CBCBD6;*/
+    background: #c0c0d2;
     border-color: #4E4E57;
     padding:8px;
     font-size: 10px;
@@ -192,7 +193,8 @@ QLabel#l_image{
     border-style: inset;
     border-width: 5px;
     border-radius: 50px;
-    background: #A5A5AD;
+    background: #fcfcfc;
+    /*background: #A5A5AD;*/
 }
 QLabel#l_bottom{
     border-style: none;

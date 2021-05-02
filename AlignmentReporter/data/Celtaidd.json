@@ -1,35 +1,28 @@
 {
     "chb_image_title": true,
     "cob_party_starting_alignment": "Average",
-    "cob_players_select": 3,
+    "cob_players_select": 0,
     "current_marker": 5,
     "gb_add_auto_party": true,
     "hs_current_scale": 41,
     "hs_jpeg_qual": 8,
     "hs_legend_h_offset": -93,
     "hs_legend_stretch": 7,
-    "hs_legend_v_offset": 35,
-    "hs_line_quality": 43,
+    "hs_legend_v_offset": -10,
+    "hs_line_quality": 69,
     "hs_scale": 36,
     "image_format": 0,
     "le_current_custom": "",
     "le_image_title": "Celtaidd's Murder Hobos",
     "le_party_color": "Grey",
-    "le_party_name": "Party Name",
+    "le_party_name": "Celtaidd's party",
     "le_previous_custom": "",
     "legend_text_alignment": 0,
-    "out_path": "D:\\Utilisateurs\\Julien\\Documents\\BeCode\\AlignmentReporter\\AlignmentReporter\\out",
+    "out_path": "/home/julien/PycharmProjects/Perso/AlignmentReporter/AlignmentReporter/out",
     "player": {
-        "Color": "Cyan",
-        "Entries": [
-            "LB",
-            "LB",
-            "G",
-            "LG",
-            "G",
-            "LG"
-        ],
-        "Name": "Sam"
+        "Color": "Black",
+        "Entries": [],
+        "Name": "Player Name"
     },
     "players": {
         "Ezren D.": {

@@ -108,7 +108,7 @@ class Worker(QObject):
 
             pos_y = float(data["hs_legend_v_offset"] / 100.0) * 1.5
             pos_x = data["hs_legend_h_offset"] * 0.015
-            stretch = float(data["hs_legend_stretch"] / 40.0)
+            stretch = float(data["hs_legend_stretch"] / 50.0)
 
             players_values: List[PlayerDict] = list(players.values())
 
@@ -286,15 +286,37 @@ class Worker(QObject):
                         mean_df_normal.iloc[0, :]
                     ).transpose()
                     last_row: pd.DataFrame = pd.DataFrame(
-                        mean_df_normal.iloc[mean_df_normal.shape[0] - 1, :]
+                        mean_df_normal.iloc[-1, :]
                     ).transpose()
 
-                    y: int = int(round(1 - first_row["y"]))
-                    x: int = int(round(first_row["x"] + 1))
-                    y_o: int = int(round(1 - last_row["y"]))
-                    x_o: int = int(round(last_row["x"] + 1))
-                    p_o_al: Tuple[float, float] = al[y][x]
-                    p_al: Tuple[float, float] = al[y_o][x_o]
+                    if first_row["y"].values[0] >= 0.334:
+                        y_o = 0
+                    elif first_row["y"].values[0] <= -0.334:
+                        y_o = 2
+                    else:
+                        y_o = 1
+
+                    if first_row["x"].values[0] <= -1.0 / 3.0:
+                        x_o = 0
+                    elif first_row["x"].values[0] >= 1.0 / 3.0:
+                        x_o = 2
+                    else:
+                        x_o = 1
+                    if last_row["y"].values[0] >= 1.0 / 3.0:
+                        y = 0
+                    elif first_row["y"].values[0] <= -1.0 / 3.0:
+                        y = 2
+                    else:
+                        y = 1
+
+                    if last_row["x"].values[0] <= -1.0 / 3.0:
+                        x = 0
+                    elif last_row["x"].values[0] >= 1.0 / 3.0:
+                        x = 2
+                    else:
+                        x = 1
+                    p_o_al: Tuple[float, float] = al[y_o][x_o]
+                    p_al: Tuple[float, float] = al[y][x]
 
                     plt.annotate(
                         player["Name"] + ":\n{} -> {}".format(p_o_al, p_al),

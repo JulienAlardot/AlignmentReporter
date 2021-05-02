@@ -90,8 +90,8 @@ def plot_background(n=100, kwargs=None):
         x: np.ndarray = np.linspace(-1.0, 1.0, n)
         x_small: np.ndarray = np.linspace(-1.0, 1.0, round(math.sqrt(n) * 2))
 
-        ax1: np.ndarray = np.linspace(1 / 3, 1.0, round(math.sqrt(n)))
-        ax2: np.ndarray = np.zeros(round(math.sqrt(n))) + 1 / 3
+        ax1: np.ndarray = np.linspace(1.0 / 3.0, 1.0, round(math.sqrt(n)))
+        ax2: np.ndarray = np.zeros(round(math.sqrt(n))) + 1.0 / 3.0
         bars: Tuple[Tuple[np.ndarray, np.ndarray], Tuple[np.ndarray, np.ndarray]] = (
             (ax1, ax2),
             (ax2, ax1),
@@ -114,8 +114,8 @@ def plot_background(n=100, kwargs=None):
         inner_circle: pd.DataFrame = pd.DataFrame(
             np.array(
                 [
-                    x_small / 3,
-                    np.array([math.sqrt((1 / 9) - v ** 2) for v in x_small / 3]),
+                    x_small / 3.0,
+                    np.array([math.sqrt((1.0 / 9.0) - v ** 2) for v in x_small / 3.0]),
                 ]
             ).transpose(),
             columns=["x", "y"],
