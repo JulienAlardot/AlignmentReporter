@@ -2,3 +2,5 @@ include *.md
 recursive-include AlignmentReporter *.json *.pkl *.jpg *.png *.ico *.png *.cur *.svg *.ui *.css
 graft AlignmentReporter
 recursive-exclude AlignmentReporter *pyc
+exclude prettify.sh
+exclude build.sh

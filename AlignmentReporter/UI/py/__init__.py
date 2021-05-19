@@ -135,7 +135,7 @@ class MainWindow(QMainWindow):
         )
         self.settingsUI: SettingWindow = SettingWindow(self)
 
-        self.setWindowTitle("Alignment Reporter v2.0.0")
+        self.setWindowTitle("Alignment Reporter v2.0")
         self.settingsUI.setWindowTitle("Image Settings")
         self.__save = savefile
         self.assignWidgets()
