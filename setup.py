@@ -1,7 +1,6 @@
 from setuptools import setup, find_packages
 
 setup(
-    Metadata-Version= 2.2,
     name="AlignR",
     version="2.0.0",
     packages=find_packages(),
