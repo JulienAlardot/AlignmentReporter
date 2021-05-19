@@ -24,22 +24,23 @@ use this tool.
 
 ## Installation:
 in the root directory
-```
-python setup.py install
+```python 
+python -m pip install AlignR
 ```
 
 ## Typical usages:
+
+### in terminal (***recommended***):
+
+```
+AlignR-Launch
+```
 
 ### Python:
 ```python
 import AlignmentReporter as AR; AR.launch()
 ```
 
-### in terminal:
-
-```
-AlignR-Launch
-```
 
 ## Typical Output
 
