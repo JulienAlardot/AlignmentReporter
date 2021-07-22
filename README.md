@@ -1,4 +1,5 @@
 # AlignmentReporter
+## An unexpected package critical bug provoked by incorrect versionning in packages is waiting to be fixed
 
 A tool for DM to easily make __Alignment Change Graphs__ for their Campaigns, __with a save system__
 to switch between parties. Originally just a part of a larger toolbox, I am currently making it a standalone project.
